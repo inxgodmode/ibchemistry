@@ -1,0 +1,1678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive MCQ Quiz - Chemistry (100 Qs)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom styles for better button feedback and layout */
+        body {
+            font-family: 'Inter', sans-serif; /* Use Inter font */
+        }
+        .option-button {
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .option-button:hover:not(:disabled) {
+            background-color: #e2e8f0; /* Light gray hover */
+        }
+        .option-button:active:not(:disabled) {
+            transform: scale(0.98); /* Slight shrink on click */
+        }
+        .correct {
+            background-color: #10b981 !important; /* Tailwind green-600 */
+            color: white !important;
+            border-color: #059669 !important; /* Darker green border */
+        }
+        .incorrect {
+            background-color: #ef4444 !important; /* Tailwind red-500 */
+            color: white !important;
+            border-color: #dc2626 !important; /* Darker red border */
+        }
+        .show-correct {
+             /* Style to highlight the correct answer when user was wrong */
+            background-color: #ccffcc !important; /* Lighter green background */
+            color: #059669 !important; /* Dark green text */
+            border: 2px solid #10b981 !important; /* Green border */
+        }
+        /* Ensure container is centered and responsive */
+        .quiz-container {
+            max-width: 600px; /* Max width for larger screens */
+            width: 95%; /* Responsive width */
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+    <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+
+        <div id="quiz-container" class="quiz-container bg-white p-6 md:p-8 rounded-lg shadow-xl">
+            <h1 class="text-2xl md:text-3xl font-bold text-center mb-6 text-gray-800">Chemistry MCQ Quiz</h1>
+    
+            <div id="question-area" class="mb-6">
+                <p id="question-text" class="text-lg md:text-xl font-medium text-gray-700 mb-2"></p>
+                <p id="progress-text" class="text-sm text-gray-500"></p>
+                <p id="live-score-text" class="text-sm text-gray-600 font-medium mt-1"></p>
+                <!-- Add this line below for the timer -->
+                <p id="timer-text" class="text-sm text-indigo-600 font-medium mt-1"></p>
+            </div>
+    
+            <div id="options-area" class="grid grid-cols-1 gap-3 mb-6">
+                </div>
+    
+            <div id="feedback-area" class="text-center text-base font-medium mb-4 h-6">
+                 </div>
+    
+             <div class="flex justify-center">
+                 <button id="next-button" class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed">
+                    Next
+                </button>
+            </div>
+    
+             <div id="score-area" class="hidden text-center mt-8">
+                <h2 class="text-2xl font-bold mb-4 text-gray-800">Quiz Complete!</h2>
+                <p id="score-text" class="text-xl text-gray-700 mb-2"></p> <!-- Added mb-2 -->
+                <!-- Add this line to show final time -->
+                <p id="final-time-text" class="text-lg text-gray-600 mb-6"></p>
+                <button id="restart-button" class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg shadow transition duration-300 ease-in-out">
+                    Restart Quiz
+                </button>
+            </div>
+        </div>
+
+    <script>
+        // --- Quiz Data ---
+        // Contains 150 chemistry questions (original 100 + new 50 on ionic bonding).
+        const quizData = [
+            // --- Original 100 Questions ---
+            {
+                question: "What is the fundamental characteristic of a covalent bond?",
+                options: [
+                    "Transfer of electrons between atoms.",
+                    "Electrostatic attraction between oppositely charged ions.",
+                    "Sharing of electrons between atoms to achieve a stable electron configuration.",
+                    "Attraction between positive metal ions and delocalized electrons."
+                ],
+                answer: "Sharing of electrons between atoms to achieve a stable electron configuration."
+            },
+            {
+                question: "Covalent bonding typically occurs between which type of elements?",
+                options: [
+                    "Metals and nonmetals.",
+                    "Two nonmetal atoms.",
+                    "Metals.",
+                    "Noble gases."
+                ],
+                answer: "Two nonmetal atoms."
+            },
+            {
+                question: "According to the octet rule, atoms form covalent bonds to achieve:",
+                options: [
+                    "A positive or negative charge.",
+                    "The same number of electrons as the preceding element in the periodic table.",
+                    "A full valence shell containing eight electrons (except for hydrogen and helium).",
+                    "An unstable electron configuration."
+                ],
+                answer: "A full valence shell containing eight electrons (except for hydrogen and helium)."
+            },
+            {
+                question: "In a Lewis formula, what do dots between atoms represent?",
+                options: [
+                    "Non-bonding electrons.",
+                    "Electrons from only one of the bonded atoms.",
+                    "Bonding electrons that are shared between the atoms.",
+                    "Core electrons."
+                ],
+                answer: "Bonding electrons that are shared between the atoms."
+            },
+            {
+                question: "Which of the following represents a single covalent bond in a structural formula?",
+                options: [
+                    "Two lines (═)",
+                    "Three lines (≡)",
+                    "One line (—)",
+                    "Dotted line (⋯)"
+                ],
+                answer: "One line (—)"
+            },
+            {
+                question: "How many shared electrons are there in a double covalent bond?",
+                options: ["Two", "Four", "Six", "Eight"],
+                answer: "Four"
+            },
+            {
+                question: "Which type of covalent bond is generally the strongest?",
+                options: [
+                    "Single bond",
+                    "Double bond",
+                    "Triple bond",
+                    "The strength depends on the atoms involved, not the bond type."
+                ],
+                answer: "Triple bond"
+            },
+            {
+                question: "How is a coordinate covalent bond different from a typical covalent bond?",
+                options: [
+                    "It involves the transfer of electrons, not sharing.",
+                    "It is weaker than a typical covalent bond.",
+                    "One atom contributes both electrons to the shared pair.",
+                    "It only occurs between metals."
+                ],
+                answer: "One atom contributes both electrons to the shared pair."
+            },
+            {
+                question: "In the formation of a coordinate covalent bond, the atom that provides the pair of electrons is said to have:",
+                options: [
+                    "An empty valence shell.",
+                    "A positive charge.",
+                    "A lone pair of electrons that can be donated.",
+                    "A high electronegativity."
+                ],
+                answer: "A lone pair of electrons that can be donated."
+            },
+            {
+                question: "Which of the following ions is formed by coordinate covalent bonding?",
+                options: [
+                    "Chloride ion (Cl⁻)",
+                    "Sodium ion (Na⁺)",
+                    "Ammonium ion (NH₄⁺)",
+                    "Oxide ion (O²⁻)"
+                ],
+                answer: "Ammonium ion (NH₄⁺)"
+            },
+            {
+                question: "What is the term used to describe the arrangement of atoms in a molecule in three-dimensional space?",
+                options: [
+                    "Electron domain geometry",
+                    "Molecular geometry (or shape)",
+                    "Lewis structure",
+                    "Structural formula"
+                ],
+                answer: "Molecular geometry (or shape)"
+            },
+            {
+                question: "According to VSEPR theory, what is the primary reason for molecules adopting specific shapes?",
+                options: [
+                    "To maximize the attraction between nuclei and electrons.",
+                    "To achieve a stable octet for all atoms.",
+                    "To minimize the repulsion between electron pairs (both bonding and lone pairs) around the central atom.",
+                    "To maximize the overlap of atomic orbitals."
+                ],
+                answer: "To minimize the repulsion between electron pairs (both bonding and lone pairs) around the central atom."
+            },
+            {
+                question: "What is an electron domain according to VSEPR theory?",
+                options: [
+                    "A region in space occupied by the nucleus of an atom.",
+                    "A region around an atom in a molecule where electrons are likely to be found (including bonds and lone pairs).",
+                    "A single covalent bond only.",
+                    "A lone pair of electrons only."
+                ],
+                answer: "A region around an atom in a molecule where electrons are likely to be found (including bonds and lone pairs)."
+            },
+            {
+                question: "How many electron domains are around the central carbon atom in methane (CH₄)?",
+                options: ["Two", "Three", "Four", "Five"],
+                answer: "Four"
+            },
+            {
+                question: "What is the electron domain geometry of methane (CH₄)?",
+                options: ["Linear", "Trigonal planar", "Tetrahedral", "Bent"],
+                answer: "Tetrahedral"
+            },
+            {
+                question: "How many bonding domains and lone pairs are present around the central oxygen atom in a water molecule (H₂O)?",
+                options: [
+                    "4 bonding domains, 0 lone pairs",
+                    "3 bonding domains, 1 lone pair",
+                    "2 bonding domains, 2 lone pairs",
+                    "1 bonding domain, 3 lone pairs"
+                ],
+                answer: "2 bonding domains, 2 lone pairs"
+            },
+            {
+                question: "What is the molecular geometry of water (H₂O)?",
+                options: ["Tetrahedral", "Trigonal pyramidal", "Linear", "Bent (or V-shaped)"],
+                answer: "Bent (or V-shaped)"
+            },
+            {
+                question: "The bond angle in methane (CH₄) is approximately:",
+                options: ["180°", "120°", "109.5°", "90°"],
+                answer: "109.5°"
+            },
+            {
+                question: "Why is the bond angle in ammonia (NH₃) slightly less than the ideal tetrahedral angle?",
+                options: [
+                    "Due to stronger repulsion between bonding pairs.",
+                    "Due to weaker repulsion involving the lone pair.",
+                    "Due to greater repulsion between a lone pair and a bonding pair of electrons.",
+                    "Due to the smaller size of the nitrogen atom."
+                ],
+                answer: "Due to greater repulsion between a lone pair and a bonding pair of electrons."
+            },
+            {
+                question: "What determines whether a covalent bond is polar or nonpolar?",
+                options: [
+                    "The number of lone pairs of electrons.",
+                    "The molecular geometry.",
+                    "The difference in electronegativity between the bonding atoms.",
+                    "The size of the atoms involved."
+                ],
+                answer: "The difference in electronegativity between the bonding atoms."
+            },
+            {
+                question: "If the electronegativity difference between two covalently bonded atoms is zero, the bond is considered:",
+                options: [
+                    "Polar covalent.",
+                    "Ionic.",
+                    "Metallic.",
+                    "Nonpolar (or pure) covalent."
+                ],
+                answer: "Nonpolar (or pure) covalent."
+            },
+            {
+                question: "A polar covalent bond has:",
+                options: [
+                    "Equal sharing of electrons.",
+                    "No sharing of electrons.",
+                    "Unequal sharing of electrons, resulting in partial charges on the atoms.",
+                    "Complete transfer of electrons."
+                ],
+                answer: "Unequal sharing of electrons, resulting in partial charges on the atoms."
+            },
+            {
+                question: "What is a bond dipole?",
+                options: [
+                    "The overall polarity of a molecule.",
+                    "A measure of the polarity of an individual bond within a molecule, represented by partial charges or an arrow.",
+                    "The repulsion between lone pairs of electrons.",
+                    "The sharing of electrons in a covalent bond."
+                ],
+                answer: "A measure of the polarity of an individual bond within a molecule, represented by partial charges or an arrow."
+            },
+            {
+                question: "For a molecule to be polar overall, it must:",
+                options: [
+                    "Only contain polar bonds.",
+                    "Have a symmetrical molecular geometry.",
+                    "Have polar bonds and an asymmetrical molecular geometry where the bond dipoles do not cancel out.",
+                    "Contain lone pairs of electrons on the central atom."
+                ],
+                answer: "Have polar bonds and an asymmetrical molecular geometry where the bond dipoles do not cancel out."
+            },
+            {
+                question: "Which of the following molecules is nonpolar even though it contains polar bonds?",
+                options: [
+                    "Water (H₂O)",
+                    "Ammonia (NH₃)",
+                    "Carbon tetrachloride (CCl₄)",
+                    "Hydrogen fluoride (HF)"
+                ],
+                answer: "Carbon tetrachloride (CCl₄)"
+            },
+            {
+                question: "Why is carbon dioxide (CO₂) a nonpolar molecule?",
+                options: [
+                    "It contains nonpolar bonds.",
+                    "The carbon atom does not have any lone pairs.",
+                    "Due to its linear molecular geometry, the bond dipoles cancel each other out.",
+                    "Oxygen is more electronegative than carbon."
+                ],
+                answer: "Due to its linear molecular geometry, the bond dipoles cancel each other out."
+            },
+            {
+                question: "Molecular compounds typically exist as:",
+                options: [
+                    "A lattice of ions.",
+                    "A network of covalently bonded atoms with no fixed number.",
+                    "Discrete molecules with a fixed number of atoms.",
+                    "A sea of delocalized electrons surrounding positive ions."
+                ],
+                answer: "Discrete molecules with a fixed number of atoms."
+            },
+            {
+                question: "What type of intermolecular forces are present between nonpolar molecular compounds?",
+                options: [
+                    "Dipole-dipole forces",
+                    "Hydrogen bonds",
+                    "London dispersion forces (weak intermolecular forces)",
+                    "Ion-dipole forces"
+                ],
+                answer: "London dispersion forces (weak intermolecular forces)"
+            },
+            {
+                question: "Molecular compounds generally have:",
+                options: [
+                    "High melting and boiling points due to strong covalent bonds between molecules.",
+                    "Good electrical conductivity in all states due to mobile electrons.",
+                    "Low melting and boiling points due to weak intermolecular forces.",
+                    "High solubility in all solvents."
+                ],
+                answer: "Low melting and boiling points due to weak intermolecular forces."
+            },
+            {
+                question: "Which of the following intermolecular forces is the strongest among molecular compounds containing O-H, N-H, or F-H bonds?",
+                options: [
+                    "London dispersion forces",
+                    "Dipole-dipole forces",
+                    "Hydrogen bonds",
+                    "Ion-dipole forces"
+                ],
+                answer: "Hydrogen bonds"
+            },
+            {
+                question: "Giant covalent structures are characterized by:",
+                options: [
+                    "Weak intermolecular forces.",
+                    "Discrete molecules with a fixed number of atoms.",
+                    "A three-dimensional (or layered) network of atoms bonded by strong covalent bonds.",
+                    "Good electrical conductivity in all cases."
+                ],
+                answer: "A three-dimensional (or layered) network of atoms bonded by strong covalent bonds."
+            },
+            {
+                question: "Which of the following is an example of a giant covalent structure?",
+                options: [
+                    "Water (H₂O)",
+                    "Carbon dioxide (CO₂)",
+                    "Diamond (C)",
+                    "Methane (CH₄)"
+                ],
+                answer: "Diamond (C)"
+            },
+            {
+                question: "Why do giant covalent structures generally have high melting and boiling points?",
+                options: [
+                    "Due to strong intermolecular forces.",
+                    "Due to the presence of delocalized electrons.",
+                    "Because strong covalent bonds throughout the structure must be broken.",
+                    "Because they exist as large, discrete molecules."
+                ],
+                answer: "Because strong covalent bonds throughout the structure must be broken."
+            },
+            {
+                question: "Which allotrope of carbon is a good conductor of electricity due to the presence of delocalized electrons?",
+                options: [
+                    "Diamond",
+                    "Fullerene C₆₀",
+                    "Graphite",
+                    "Allotropes of carbon are good conductors."
+                ],
+                answer: "Graphite"
+            },
+             {
+                question: "Why are molecules with delocalized electrons, such as benzene and fullerene C₆₀, poor conductors of electricity?",
+                options: [
+                    "They do not have mobile ions.",
+                    "The delocalized electrons are not free to move.",
+                    "The delocalized electrons are only free to move within the molecule, not between molecules.",
+                    "They have strong intermolecular forces."
+                ],
+                answer: "The delocalized electrons are only free to move within the molecule, not between molecules."
+            },
+            {
+                question: "Graphene is unique because it is:",
+                options: [
+                    "A three-dimensional network structure.",
+                    "A poor conductor of electricity.",
+                    "A single layer of carbon atoms with very good electrical and thermal conductivity.",
+                    "Held together by weak London dispersion forces between layers."
+                ],
+                answer: "A single layer of carbon atoms with very good electrical and thermal conductivity."
+            },
+            {
+                question: "What are resonance structures?",
+                options: [
+                    "Different three-dimensional arrangements of atoms in a molecule.",
+                    "Structures with different numbers of electrons.",
+                    "Two or more Lewis structures that represent a single molecule or ion when multiple bonding arrangements are possible.",
+                    "Structures where atoms do not follow the octet rule."
+                ],
+                answer: "Two or more Lewis structures that represent a single molecule or ion when multiple bonding arrangements are possible."
+            },
+            {
+                question: "Resonance structures are used to represent molecules or ions in which:",
+                options: [
+                    "The bond lengths are all different.",
+                    "Electrons are localized in single bonds.",
+                    "The bonding cannot be accurately represented by a single Lewis structure, and electrons are delocalized.",
+                    "The octet rule is violated."
+                ],
+                answer: "The bonding cannot be accurately represented by a single Lewis structure, and electrons are delocalized."
+            },
+            {
+                question: "In a polyatomic ion, the atoms within the ion are bonded by:",
+                options: [
+                    "Ionic bonds.",
+                    "Covalent bonds.",
+                    "Metallic bonds.",
+                    "A mixture of ionic and metallic bonds."
+                ],
+                answer: "Covalent bonds."
+            },
+            {
+                question: "The bonding between a polyatomic ion and a counter ion in a compound is:",
+                options: [
+                    "Covalent bonding.",
+                    "Ionic bonding.",
+                    "Metallic bonding.",
+                    "Coordinate bonding."
+                ],
+                answer: "Ionic bonding."
+            },
+            {
+                question: "Which of the following polyatomic ions has a trigonal planar electron domain geometry?",
+                options: [
+                    "Ammonium ion (NH₄⁺)",
+                    "Sulfate ion (SO₄²⁻)",
+                    "Carbonate ion (CO₃²⁻)",
+                    "Phosphate ion (PO₄³⁻)"
+                ],
+                answer: "Carbonate ion (CO₃²⁻)"
+            },
+            {
+                question: "Which of the following polyatomic ions has a bent molecular geometry?",
+                options: [
+                    "Carbonate ion (CO₃²⁻)",
+                    "Sulfate ion (SO₄²⁻)",
+                    "Ammonium ion (NH₄⁺)",
+                    "Nitrite ion (NO₂⁻)"
+                ],
+                answer: "Nitrite ion (NO₂⁻)"
+            },
+            {
+                question: "What is the formula of the carbonate ion?",
+                options: ["NO₃⁻", "SO₄²⁻", "CO₃²⁻", "PO₄³⁻"],
+                answer: "CO₃²⁻"
+            },
+            {
+                question: "What is the charge on the ammonium ion?",
+                options: ["-1", "-2", "+1", "0"],
+                answer: "+1"
+            },
+            {
+                question: "Which of the following represents the strongest carbon-carbon bond?",
+                options: [
+                    "C-C",
+                    "C=C",
+                    "C≡C",
+                    "All carbon-carbon bonds have the same strength."
+                ],
+                answer: "C≡C"
+            },
+            {
+                question: "Which of the following molecules contains a carbon to carbon double bond?",
+                options: [
+                    "Ethane (C₂H₆)",
+                    "Ethene (C₂H₄)",
+                    "Ethyne (C₂H₂)",
+                    "Methane (CH₄)"
+                ],
+                answer: "Ethene (C₂H₄)"
+            },
+            {
+                question: "In ethene (C₂H₄), how many sigma (σ) and pi (π) bonds are present between the two carbon atoms?",
+                options: [
+                    "One σ and zero π",
+                    "Zero σ and one π",
+                    "One σ and one π",
+                    "Two σ and one π"
+                ],
+                answer: "One σ and one π"
+            },
+            {
+                question: "In ethyne (C₂H₂), how many sigma (σ) and pi (π) bonds are present between the two carbon atoms?",
+                options: [
+                    "One σ and zero π",
+                    "Zero σ and two π",
+                    "One σ and one π",
+                    "One σ and two π"
+                ],
+                answer: "One σ and two π"
+            },
+            {
+                question: "The concept of hybridisation of atomic orbitals is used to explain:",
+                options: [
+                    "The ionic bonding in compounds.",
+                    "The metallic bonding in elements.",
+                    "The shapes of molecules based on the arrangement of electron domains.",
+                    "The formation of resonance structures."
+                ],
+                answer: "The shapes of molecules based on the arrangement of electron domains."
+            },
+            {
+                question: "A carbon atom forming four single bonds is typically considered to be:",
+                options: ["sp hybridized", "sp² hybridized", "sp³ hybridized", "Not hybridized"],
+                answer: "sp³ hybridized"
+            },
+            // --- Original 50 Questions on Metallic Bonding ---
+            {
+                question: "What is the fundamental nature of a metallic bond?",
+                options: [
+                    "Electrostatic attraction between positive ions and anions",
+                    "Sharing of electrons between atoms to form molecules",
+                    "Electrostatic attraction between a lattice of positive metal ions and delocalized electrons",
+                    "Weak intermolecular forces holding atoms together"
+                ],
+                answer: "Electrostatic attraction between a lattice of positive metal ions and delocalized electrons"
+            },
+            {
+                question: "In the structure of a metal, what are the positively charged entities arranged in a lattice?",
+                options: [
+                    "Atoms",
+                    "Molecules",
+                    "Metal ions",
+                    "Electrons"
+                ],
+                answer: "Metal ions"
+            },
+            {
+                question: "What are the electrons that are free to move within the structure of a metal called?",
+                options: [
+                    "Valence electrons",
+                    "Core electrons",
+                    "Localized electrons",
+                    "Delocalized electrons"
+                ],
+                answer: "Delocalized electrons"
+            },
+            {
+                question: "Which property of metals is best explained by the presence of delocalized electrons?",
+                options: [
+                    "Brittleness",
+                    "Low melting point",
+                    "Good electrical conductivity",
+                    "Poor thermal conductivity"
+                ],
+                answer: "Good electrical conductivity"
+            },
+            {
+                question: "Why are metals good conductors of electricity?",
+                options: [
+                    "Their atoms are closely packed.",
+                    "They have a high density.",
+                    "They have delocalized electrons that can carry a current.",
+                    "Their ions are free to move in a solid state."
+                ],
+                answer: "They have delocalized electrons that can carry a current."
+            },
+            {
+                question: "What causes the shiny appearance of metals?",
+                options: [
+                    "Strong ionic bonds reflecting light",
+                    "Localized electrons absorbing all light",
+                    "Delocalized electrons reflecting light",
+                    "The regular arrangement of metal ions"
+                ],
+                answer: "Delocalized electrons reflecting light"
+            },
+            {
+                question: "What term describes the ability of metals to be drawn into wires?",
+                options: [
+                    "Malleability",
+                    "Ductility",
+                    "Lustre",
+                    "Conductivity"
+                ],
+                answer: "Ductility"
+            },
+            {
+                question: "What term describes the ability of metals to be hammered or bent into shape without cracking?",
+                options: [
+                    "Ductility",
+                    "Tensile strength",
+                    "Lustre",
+                    "Malleability"
+                ],
+                answer: "Malleability"
+            },
+            {
+                question: "Why are metals malleable and ductile according to the sources?",
+                options: [
+                    "They have weak intermolecular forces.",
+                    "Their ions can easily change charge.",
+                    "The layers of ions can slide over each other without breaking the metallic bond.",
+                    "They have strong directional covalent bonds."
+                ],
+                answer: "The layers of ions can slide over each other without breaking the metallic bond."
+            },
+            {
+                question: "According to source3, what is one of the factors that determines the strength of a metallic bond?",
+                options: [
+                    "Electronegativity difference",
+                    "Number of protons in the nucleus of non-metals",
+                    "Charge on the metal ion",
+                    "Number of valence electrons in non-metals"
+                ],
+                answer: "Charge on the metal ion"
+            },
+            {
+                question: "According to source3, what is the other main factor that determines the strength of a metallic bond?",
+                options: [
+                    "Number of neutrons in the nucleus",
+                    "Atomic mass of the metal",
+                    "Ionic radius of the metal ion",
+                    "Ionization energy of non-metals"
+                ],
+                answer: "Ionic radius of the metal ion"
+            },
+            {
+                question: "What happens to the strength of a metallic bond if the charge on the metal ion increases, assuming other factors are constant?",
+                options: [
+                    "The strength decreases.",
+                    "The strength remains the same.",
+                    "The strength increases.",
+                    "The effect on strength is unpredictable."
+                ],
+                answer: "The strength increases."
+            },
+            {
+                question: "What happens to the strength of a metallic bond if the ionic radius of the metal ion decreases, assuming other factors are constant?",
+                options: [
+                    "The strength decreases.",
+                    "The strength remains the same.",
+                    "The strength increases.",
+                    "The effect on strength is unpredictable."
+                ],
+                answer: "The strength increases."
+            },
+            {
+                question: "According to source3, which of the following pairs demonstrates the relationship between metallic bond strength and melting point?",
+                options: [
+                    "Sodium (Na) having a higher melting point than Magnesium (Mg)",
+                    "Magnesium (Mg) having a much higher melting point than Sodium (Na)",
+                    "Sodium (Na) and Magnesium (Mg) having similar melting points",
+                    "The melting points of Sodium (Na) and Magnesium (Mg) are unrelated to bond strength."
+                ],
+                answer: "Magnesium (Mg) having a much higher melting point than Sodium (Na)"
+            },
+            {
+                question: "Why does Magnesium (Mg) have a higher melting point than Sodium (Na)?", // Slightly rephrased for clarity
+                options: [
+                    "Sodium (Na) has a greater ionic radius and a higher charge.",
+                    "Sodium (Na) has a smaller ionic radius and a lower charge.",
+                    "Magnesium (Mg) has a greater charge on the ion (2+) and a smaller ionic radius compared to Sodium (Na) (1+).",
+                    "Magnesium (Mg) has weaker metallic bonds."
+                ],
+                answer: "Magnesium (Mg) has a greater charge on the ion (2+) and a smaller ionic radius compared to Sodium (Na) (1+)."
+            },
+            {
+                question: "How do the electrons in a metallic bond compare to those in a covalent bond?",
+                options: [
+                    "Electrons in metallic bonds are localized between two atoms.",
+                    "Electrons in metallic bonds are delocalized and not associated with a single atom or pair of atoms.",
+                    "Electrons in covalent bonds are free to move throughout the structure.",
+                    "There is no fundamental difference in the behavior of electrons in metallic and covalent bonds."
+                ],
+                answer: "Electrons in metallic bonds are delocalized and not associated with a single atom or pair of atoms."
+            },
+            {
+                question: "How does the mobility of electrons in a metallic structure differ from that in molecules with delocalized electrons like benzene (C₆H₆) according to source1?",
+                options: [
+                    "Electrons are more mobile in benzene (C₆H₆).",
+                    "Electrons are confined within individual metal atoms.",
+                    "Electrons are free to move throughout the entire metallic structure, whereas in benzene (C₆H₆), they are delocalized within the molecule but not between molecules.",
+                    "Electron mobility is the same in both metallic structures and benzene (C₆H₆)."
+                ],
+                answer: "Electrons are free to move throughout the entire metallic structure, whereas in benzene (C₆H₆), they are delocalized within the molecule but not between molecules."
+            },
+            {
+                question: "Why are molecules with delocalized electrons, such as benzene (C₆H₆) and fullerene (C₆₀), poor conductors of electricity according to source1?",
+                options: [
+                    "They lack delocalized electrons.",
+                    "The delocalized electrons are not free to move within the molecule.",
+                    "The delocalized electrons are only free to move within the molecule and not between molecules.",
+                    "These molecules have strong covalent bonds that restrict electron flow."
+                ],
+                answer: "The delocalized electrons are only free to move within the molecule and not between molecules."
+            },
+            {
+                question: "Under what conditions do ionic compounds conduct electricity according to source1?",
+                options: [
+                    "Only when solid.",
+                    "Only when they have delocalized electrons.",
+                    "Only when melted or dissolved in water, allowing the ions to move.",
+                    "Ionic compounds are always good conductors of electricity."
+                ],
+                answer: "Only when melted or dissolved in water, allowing the ions to move."
+            },
+            {
+                question: "Why do solid ionic compounds not conduct electricity according to source1?",
+                options: [
+                    "They have no electrons.",
+                    "Their electrons are delocalized but cannot move.",
+                    "Their ions are held in fixed positions within the lattice and are not free to move.",
+                    "They lack charged particles."
+                ],
+                answer: "Their ions are held in fixed positions within the lattice and are not free to move."
+            },
+            {
+                question: "What happens to the ions in an ionic compound when it melts or dissolves in water, allowing it to conduct electricity according to source1?",
+                options: [
+                    "The ions lose their charge.",
+                    "The covalent bonds within the ions break.",
+                    "The ions become free to move and carry an electric current.",
+                    "Delocalized electrons are formed."
+                ],
+                answer: "The ions become free to move and carry an electric current."
+            },
+            {
+                question: "According to source1, what is the metallic structure composed of?",
+                options: [
+                    "Neutral metal atoms in a fixed lattice",
+                    "A sea of mobile positive ions and localized electrons",
+                    "A lattice of positive metal ions in a sea of delocalized electrons",
+                    "Negatively charged metal ions surrounded by positive electrons"
+                ],
+                answer: "A lattice of positive metal ions in a sea of delocalized electrons"
+            },
+            {
+                question: "What is the nature of the attraction between the positive metal ions and the delocalized electrons in a metallic bond according to source3?",
+                options: [
+                    "Covalent attraction",
+                    "Repulsive force",
+                    "Electrostatic attraction",
+                    "Nuclear force"
+                ],
+                answer: "Electrostatic attraction"
+            },
+            {
+                question: "According to source3, which of the following metals would likely have a stronger metallic bond?",
+                options: [
+                    "A metal with a 1+ charge and a large ionic radius.",
+                    "A metal with a 1+ charge and a small ionic radius.",
+                    "A metal with a 2+ charge and a small ionic radius.",
+                    "A metal with a 2+ charge and a large ionic radius."
+                ],
+                answer: "A metal with a 2+ charge and a small ionic radius."
+            },
+            {
+                question: "Which property of metals explains why they are used in electrical wiring according to source3?",
+                options: [
+                    "Malleability",
+                    "Ductility",
+                    "Good conductivity of electricity",
+                    "High melting point"
+                ],
+                answer: "Good conductivity of electricity"
+            },
+            {
+                question: "Which property of metals explains why they are used to make saucepans according to source3?",
+                options: [
+                    "Shininess",
+                    "Ductility",
+                    "Malleability",
+                    "Good conductivity of heat"
+                ],
+                answer: "Good conductivity of heat"
+            },
+            {
+                question: "What happens to the metallic bond when a metal is bent or stretched according to source3?",
+                options: [
+                    "The bond breaks completely.",
+                    "The bond becomes weaker permanently.",
+                    "The metallic bond remains intact as the layers can slide.",
+                    "Covalent bonds are formed temporarily."
+                ],
+                answer: "The metallic bond remains intact as the layers can slide."
+            },
+            {
+                question: "Based on the information in the sources, is copper (Cu), used in electrical wires, likely to have delocalized electrons?",
+                options: [
+                    "No, because it's a solid.",
+                    "No, because it's not an ionic compound.",
+                    "Yes, because metals are good conductors of electricity due to delocalized electrons.",
+                    "The sources do not provide information about copper's bonding."
+                ],
+                answer: "Yes, because metals are good conductors of electricity due to delocalized electrons."
+            },
+            {
+                question: "Based on the information in the sources, would diamond conduct electricity?",
+                options: [
+                    "Yes, because it has strong bonds.",
+                    "Yes, because it is a giant structure.",
+                    "No, because it has no delocalized electrons; the electrons are localized in covalent bonds.",
+                    "Yes, because carbon atoms are good conductors."
+                ],
+                answer: "No, because it has no delocalized electrons; the electrons are localized in covalent bonds."
+            },
+            {
+                question: "Graphite is an exception among giant covalent substances because it conducts electricity. What is the reason for this conductivity?",
+                options: [
+                    "It has weak covalent bonds.",
+                    "Its layers are held together by strong forces.",
+                    "It has delocalized electrons that are free to move within its layered structure.",
+                    "It has mobile ions in its solid state."
+                ],
+                answer: "It has delocalized electrons that are free to move within its layered structure."
+            },
+            {
+                question: "How many other carbon atoms is each carbon atom bonded to in the layers of graphite according to source1?",
+                options: ["Two", "Three", "Four", "Six"],
+                answer: "Three"
+            },
+            {
+                question: "What type of forces hold the layers of carbon atoms together in graphite according to source1?",
+                options: [
+                    "Strong covalent bonds",
+                    "Metallic bonds",
+                    "London dispersion forces (weak intermolecular forces)",
+                    "Electrostatic forces between ions"
+                ],
+                answer: "London dispersion forces (weak intermolecular forces)"
+            },
+            {
+                question: "In diamond, how many other carbon atoms is each carbon atom bonded to according to source6?",
+                options: ["Two", "Three", "Four", "Six"],
+                answer: "Four"
+            },
+            {
+                question: "Why does diamond not conduct electricity according to source6?",
+                options: [
+                    "It has no electrons.",
+                    "Its bonds are too weak.",
+                    "It has no delocalized electrons; all electrons are involved in strong covalent bonds.",
+                    "Its structure is not layered."
+                ],
+                answer: "It has no delocalized electrons; all electrons are involved in strong covalent bonds."
+            },
+            {
+                question: "What is the bond angle between carbon atoms in graphite according to source6?",
+                options: ["109.5°", "120°", "180°", "90°"],
+                answer: "120°"
+            },
+            {
+                question: "What is the bond angle between carbon atoms in diamond according to source6?",
+                options: ["120°", "109.5°", "180°", "90°"],
+                answer: "109.5°"
+            },
+            {
+                question: "Fullerene C₆₀ shows some electrical conductivity according to source6. What does its structure consist of?",
+                options: [
+                    "Layers of carbon atoms",
+                    "A giant network of covalently bonded carbon atoms",
+                    "12 pentagons and 20 hexagons of carbon atoms",
+                    "Isolated carbon atoms"
+                ],
+                answer: "12 pentagons and 20 hexagons of carbon atoms"
+            },
+            {
+                question: "How many other carbon atoms is each carbon atom bonded to in fullerene C₆₀ according to source6?",
+                options: ["Two", "Three", "Four", "Six"],
+                answer: "Three"
+            },
+            {
+                question: "Graphene is described as very thin and one layer thick according to source6. What is its structure made of?",
+                options: [
+                    "Layers held by weak forces",
+                    "A network of tetrahedrally bonded carbon atoms",
+                    "A single layer of carbon atoms bonded in a repeating pattern of hexagons",
+                    "Isolated C₆₀ molecules"
+                ],
+                answer: "A single layer of carbon atoms bonded in a repeating pattern of hexagons"
+            },
+            {
+                question: "What is the bond angle between carbon atoms in graphene according to source6?",
+                options: ["109.5°", "120°", "180°", "90°"],
+                answer: "120°"
+            },
+            {
+                question: "Graphene has very good electrical and thermal conductivity according to source6. What is the reason for this?",
+                options: [
+                    "Strong sigma bonds",
+                    "Limited electron movement",
+                    "Delocalized electrons that can move freely",
+                    "Ionic character in the bonds"
+                ],
+                answer: "Delocalized electrons that can move freely"
+            },
+            {
+                question: "Based on the information in source3, gold (Au) is shiny. What does this imply about its electron structure?",
+                options: [
+                    "It has localized electrons that absorb light.",
+                    "It has strong ionic bonds.",
+                    "It has delocalized electrons that reflect light.",
+                    "It has no free electrons."
+                ],
+                answer: "It has delocalized electrons that reflect light."
+            },
+            {
+                question: "Iron (Fe) has a high melting point according to source3. What does this suggest about its metallic bond strength?",
+                options: [
+                    "It has weak metallic bonds.",
+                    "Its metallic bonds are similar in strength to those of metals with low melting points.",
+                    "It likely has relatively strong metallic bonds.",
+                    "Melting point is unrelated to metallic bond strength."
+                ],
+                answer: "It likely has relatively strong metallic bonds."
+            },
+            {
+                question: "According to source3, what allows metals to conduct heat?",
+                options: [
+                    "The vibration of positive ions in the lattice",
+                    "The fixed arrangement of atoms",
+                    "The delocalized electrons within the metallic structure",
+                    "Strong electrostatic attractions between ions"
+                ],
+                answer: "The delocalized electrons within the metallic structure"
+            },
+            {
+                question: "In metallic bonding, the \"sea of delocalized electrons\" can be best described as:",
+                options: [
+                    "Electrons tightly held by individual metal ions.",
+                    "Electrons shared between two specific metal atoms.",
+                    "A collective of valence electrons that are free to move throughout the metal lattice.",
+                    "Electrons that are lost by some metal atoms and gained by others."
+                ],
+                answer: "A collective of valence electrons that are free to move throughout the metal lattice."
+            },
+            {
+                question: "Which of the following is NOT a typical property of metals that is directly related to metallic bonding?",
+                options: [
+                    "Good electrical conductivity",
+                    "Malleability",
+                    "High solubility in polar solvents like water",
+                    "Ductility"
+                ],
+                answer: "High solubility in polar solvents like water"
+            },
+            {
+                question: "The strength of the metallic bond is directly proportional to the:",
+                options: [
+                    "Size of the metal atom.",
+                    "Number of core electrons.",
+                    "Charge density of the metal ion (charge/size).",
+                    "Number of neutrons in the nucleus."
+                ],
+                answer: "Charge density of the metal ion (charge/size)."
+            },
+            {
+                question: "When comparing two alkali metals, the one with a smaller atomic radius is expected to have:",
+                options: [
+                    "Weaker metallic bonds and a lower melting point.",
+                    "Weaker metallic bonds and a higher melting point.",
+                    "Stronger metallic bonds and a higher melting point.",
+                    "Stronger metallic bonds and a lower melting point."
+                ],
+                answer: "Stronger metallic bonds and a higher melting point."
+            },
+            {
+                question: "The delocalized electrons in a metal can be thought of as:",
+                options: [
+                    "Being held stationary between the positive ions.",
+                    "Forming strong covalent bonds between metal atoms.",
+                    "Providing a \"glue\" that holds the positive metal ions together.",
+                    "Belonging to individual metal atoms only."
+                ],
+                answer: "Providing a \"glue\" that holds the positive metal ions together."
+            },
+            {
+                question: "Which of the following types of substances primarily involves metallic bonding?",
+                options: ["Water (H₂O)", "Sodium chloride (NaCl)", "Diamond (C)", "Iron (Fe)"],
+                answer: "Iron (Fe)"
+            },
+
+            // --- NEW 50 Questions on Ionic Bonding ---
+            {
+                question: "What is the fundamental force of attraction in an ionic bond?",
+                options: [
+                    "a) Sharing of electrons",
+                    "b) Attraction between neutral molecules",
+                    "c) Electrostatic attraction between oppositely charged ions",
+                    "d) Attraction between delocalized electrons and positive nuclei"
+                ],
+                answer: "c) Electrostatic attraction between oppositely charged ions"
+            },
+            {
+                question: "Ionic bonding typically occurs between:",
+                options: [
+                    "a) Two non-metals",
+                    "b) Two metals",
+                    "c) A metal and a non-metal",
+                    "d) Atoms with similar electronegativities"
+                ],
+                answer: "c) A metal and a non-metal"
+            },
+            {
+                question: "What is the typical electronegativity difference required for ionic bond formation, according to one of the sources?",
+                options: [
+                    "a) Less than 0.4 units",
+                    "b) Between 0.4 and 1.7 units",
+                    "c) Greater than 1.7 units",
+                    "d) Equal to zero"
+                ],
+                answer: "c) Greater than 1.7 units"
+            },
+            {
+                question: "When a metal atom forms an ion, it generally:",
+                options: [
+                    "a) Gains electrons to become a negative ion (anion)",
+                    "b) Loses electrons to become a positive ion (cation)",
+                    "c) Shares electrons with a non-metal atom",
+                    "d) Remains electrically neutral"
+                ],
+                answer: "b) Loses electrons to become a positive ion (cation)"
+            },
+            {
+                question: "When a non-metal atom forms an ion, it generally:",
+                options: [
+                    "a) Loses electrons to become a positive ion (cation)",
+                    "b) Shares electrons with a metal atom",
+                    "c) Gains electrons to become a negative ion (anion)",
+                    "d) Remains electrically neutral"
+                ],
+                answer: "c) Gains electrons to become a negative ion (anion)"
+            },
+            {
+                question: "A sodium atom (Na) has an electron configuration of 2, 8, 1. What charge will its ion typically have?",
+                options: ["a) 2+", "b) 1-", "c) 1+", "d) 0"],
+                answer: "c) 1+"
+            },
+            {
+                question: "A chlorine atom (Cl) has an electron configuration that needs one more electron to achieve a noble gas configuration. What charge will its ion typically have?",
+                options: ["a) 1+", "b) 1-", "c) 7+", "d) 0"],
+                answer: "b) 1-"
+            },
+            {
+                question: "What is the structure of solid ionic compounds?",
+                options: [
+                    "a) Discrete molecules with fixed numbers of atoms",
+                    "b) Layers of atoms held together by weak forces",
+                    "c) A lattice structure of positively and negatively charged ions",
+                    "d) A sea of delocalized electrons surrounding positive ions"
+                ],
+                answer: "c) A lattice structure of positively and negatively charged ions"
+            },
+            {
+                question: "Why are solid ionic compounds poor conductors of electricity?",
+                options: [
+                    "a) They have delocalized electrons that are not free to move.",
+                    "b) The electrons in the molecules are localized in covalent bonds.",
+                    "c) The ions are held in fixed positions and cannot move.",
+                    "d) They do not have any charged particles."
+                ],
+                answer: "c) The ions are held in fixed positions and cannot move."
+            },
+            {
+                question: "When do ionic compounds typically conduct electricity?",
+                options: [
+                    "a) Only when solid",
+                    "b) Only in the gaseous state",
+                    "c) When melted or dissolved in water",
+                    "d) They never conduct electricity"
+                ],
+                answer: "c) When melted or dissolved in water"
+            },
+            {
+                question: "Why do molten or dissolved ionic compounds conduct electricity?",
+                options: [
+                    "a) The electrons become delocalized.",
+                    "b) The covalent bonds break, releasing electrons.",
+                    "c) The ions are free to move and carry an electric current.",
+                    "d) The molecules become polarized."
+                ],
+                answer: "c) The ions are free to move and carry an electric current."
+            },
+            {
+                question: "What happens to the ions of an ionic compound when it dissolves in water?",
+                options: [
+                    "a) They form covalent bonds with water molecules.",
+                    "b) They remain in a fixed lattice structure.",
+                    "c) They are separated and surrounded by water molecules (hydration).",
+                    "d) They become electrically neutral."
+                ],
+                answer: "c) They are separated and surrounded by water molecules (hydration)."
+            },
+            {
+                question: "Ionic compounds generally have:",
+                options: [
+                    "a) Low melting and boiling points",
+                    "b) Moderate melting and boiling points",
+                    "c) High melting and boiling points",
+                    "d) Melting and boiling points similar to covalent molecules"
+                ],
+                answer: "c) High melting and boiling points"
+            },
+            {
+                question: "What is the reason for the high melting points of ionic compounds?",
+                options: [
+                    "a) Weak intermolecular forces between molecules",
+                    "b) Strong covalent bonds within the lattice",
+                    "c) Strong electrostatic attractions between oppositely charged ions",
+                    "d) The presence of delocalized electrons"
+                ],
+                answer: "c) Strong electrostatic attractions between oppositely charged ions"
+            },
+            {
+                question: "Which of the following pairs of elements is most likely to form an ionic bond?",
+                options: [
+                    "a) Carbon and oxygen",
+                    "b) Nitrogen and hydrogen",
+                    "c) Sodium and chlorine",
+                    "d) Sulfur and fluorine"
+                ],
+                answer: "c) Sodium and chlorine"
+            },
+            {
+                question: "What is the formula for the ionic compound formed between potassium (K⁺) and oxide (O²⁻) ions?",
+                options: ["a) KO", "b) K₃O₂", "c) K₂O", "d) KO₂"],
+                answer: "c) K₂O"
+            },
+            {
+                question: "What is the formula for the ionic compound formed between calcium (Ca²⁺) and chloride (Cl⁻) ions?",
+                options: ["a) CaCl", "b) CaCl₂", "c) Ca₂Cl", "d) CaCl₃"],
+                answer: "b) CaCl₂"
+            },
+            {
+                question: "What is the formula for the ionic compound formed between aluminum (Al³⁺) and sulfate (SO₄²⁻) ions?",
+                 options: ["a) AlSO₄", "b) Al₂(SO₄)₃", "c) Al₃(SO₄)₂", "d) Al(SO₄)₂"], // Corrected options based on common errors, assuming b is correct
+                 answer: "b) Al₂(SO₄)₃" // Double check if option c in original was a typo
+            },
+            {
+                question: "In the formula unit of magnesium bromide (MgBr₂), what is the ratio of magnesium ions to bromide ions?",
+                options: ["a) 1:1", "b) 1:2", "c) 2:1", "d) 2:2"],
+                answer: "b) 1:2"
+            },
+            {
+                question: "Which of the following is a polyatomic ion?",
+                options: ["a) Cl⁻", "b) Na⁺", "c) SO₄²⁻", "d) Mg²⁺"],
+                answer: "c) SO₄²⁻"
+            },
+            {
+                question: "What type of bonding exists between the atoms within a polyatomic ion?",
+                options: [
+                    "a) Ionic bonding",
+                    "b) Covalent bonding",
+                    "c) Metallic bonding",
+                    "d) Van der Waals forces"
+                ],
+                answer: "b) Covalent bonding"
+            },
+            {
+                question: "What type of bonding exists between the polyatomic ions and other ions in a compound containing a polyatomic ion?",
+                options: [
+                    "a) Covalent bonding",
+                    "b) Ionic bonding",
+                    "c) Metallic bonding",
+                    "d) Hydrogen bonding"
+                ],
+                answer: "b) Ionic bonding"
+            },
+            {
+                question: "In ammonium chloride (NH₄Cl), what type of bond is present between nitrogen and hydrogen atoms in the ammonium ion?",
+                options: [
+                    "a) Ionic bond",
+                    "b) Covalent bond",
+                    "c) Metallic bond",
+                    "d) Van der Waals force"
+                ],
+                answer: "b) Covalent bond"
+            },
+            {
+                question: "In ammonium chloride (NH₄Cl), what type of bond is present between the ammonium ion (NH₄⁺) and the chloride ion (Cl⁻)?",
+                options: [
+                    "a) Covalent bond",
+                    "b) Ionic bond",
+                    "c) Metallic bond",
+                    "d) Hydrogen bond"
+                ],
+                answer: "b) Ionic bond"
+            },
+            {
+                question: "Which group of the periodic table typically forms ions with a +2 charge?",
+                options: ["a) Group 1", "b) Group 2", "c) Group 16", "d) Group 17"],
+                answer: "b) Group 2"
+            },
+            {
+                question: "Which group of the periodic table typically forms ions with a -1 charge?",
+                options: ["a) Group 1", "b) Group 15", "c) Group 16", "d) Group 17"],
+                answer: "d) Group 17"
+            },
+            {
+                question: "What is the charge on the phosphide ion formed from phosphorus (Group 15)?",
+                options: ["a) 3+", "b) 2-", "c) 3-", "d) 5+"],
+                answer: "c) 3-"
+            },
+            {
+                question: "Which of the following ionic compounds contains ions with charges of equal magnitude but opposite signs?",
+                options: [
+                    "a) Lithium oxide (Li₂O)",
+                    "b) Calcium chloride (CaCl₂)",
+                    "c) Sodium chloride (NaCl)",
+                    "d) Magnesium nitride (Mg₃N₂)"
+                ],
+                answer: "c) Sodium chloride (NaCl)"
+            },
+            {
+                question: "In the cross-over method for writing ionic formulas, the numerical charge on the cation becomes the subscript for the:",
+                options: [
+                    "a) Cation",
+                    "b) Anion",
+                    "c) Both cation and anion",
+                    "d) Neither cation nor anion"
+                ],
+                answer: "b) Anion"
+            },
+            {
+                question: "What is the formula for the ionic compound formed between lithium (Li⁺) and nitride (N³⁻) ions using the cross-over method?",
+                options: ["a) LiN", "b) Li₂N", "c) Li₃N", "d) LiN₃"],
+                answer: "c) Li₃N"
+            },
+            {
+                question: "According to the sources, what must a substance have to conduct electricity?",
+                options: [
+                    "a) Covalent bonds",
+                    "b) A giant molecular structure",
+                    "c) Delocalized electrons or free moving ions",
+                    "d) Strong intermolecular forces"
+                ],
+                answer: "c) Delocalized electrons or free moving ions"
+            },
+            {
+                question: "Why are molecular elements and compounds generally poor conductors of electricity?",
+                options: [
+                    "a) They have free moving ions.",
+                    "b) They do not have delocalized electrons.",
+                    "c) They have metallic bonding.",
+                    "d) Their electrons are free to move between molecules."
+                ],
+                answer: "b) They do not have delocalized electrons."
+            },
+            {
+                question: "Which of the following giant covalent substances is an exception and a good conductor of electricity?",
+                options: [
+                    "a) Diamond",
+                    "b) Silicon",
+                    "c) Silicon dioxide",
+                    "d) Graphite"
+                ],
+                answer: "d) Graphite"
+            },
+            {
+                question: "Why is graphite a good conductor of electricity?",
+                options: [
+                    "a) It has a tetrahedral structure.",
+                    "b) It has delocalized electrons that are free to move within its layered structure.",
+                    "c) The layers are held together by strong covalent bonds.",
+                    "d) The carbon atoms are bonded to only two other carbon atoms."
+                ],
+                answer: "b) It has delocalized electrons that are free to move within its layered structure."
+            },
+            {
+                question: "Even though benzene and fullerene C₆₀ have delocalized electrons, they are poor conductors of electricity because:",
+                options: [
+                    "a) They have ionic bonds.",
+                    "b) Their delocalized electrons are fixed in position.",
+                    "c) Their delocalized electrons are only free to move within the molecule and not between molecules.",
+                    "d) They lack a giant covalent structure."
+                ],
+                answer: "c) Their delocalized electrons are only free to move within the molecule and not between molecules."
+            },
+            {
+                question: "Which of the following factors affects the melting point of ionic compounds?",
+                options: [
+                    "a) The number of atoms in the compound",
+                    "b) The strength of covalent bonds within polyatomic ions",
+                    "c) The charge and size (radius) of the ions",
+                    "d) The presence of intermolecular forces"
+                ],
+                answer: "c) The charge and size (radius) of the ions"
+            },
+            {
+                question: "For ionic compounds with ions of similar size, a greater ionic charge leads to:",
+                options: [
+                    "a) A lower melting point",
+                    "b) No change in melting point",
+                    "c) A higher melting point",
+                    "d) A lower solubility in water"
+                ],
+                answer: "c) A higher melting point"
+            },
+            {
+                question: "For ionic compounds with ions of similar charge, a greater ionic radius leads to:",
+                options: [
+                    "a) A higher melting point",
+                    "b) No change in melting point",
+                    "c) A lower melting point",
+                    "d) A higher electrical conductivity in the solid state"
+                ],
+                answer: "c) A lower melting point"
+            },
+            {
+                question: "Compared to sodium chloride (NaCl), magnesium oxide (MgO) has a much higher melting point. This is primarily because:",
+                options: [
+                    "a) MgO has larger ions.",
+                    "b) NaCl has a lattice structure, while MgO does not.",
+                    "c) Mg²⁺ and O²⁻ ions have greater charges than Na⁺ and Cl⁻ ions.",
+                    "d) MgO is more soluble in water."
+                ],
+                answer: "c) Mg²⁺ and O²⁻ ions have greater charges than Na⁺ and Cl⁻ ions."
+            },
+            {
+                question: "Compared to sodium fluoride (NaF), potassium fluoride (KF) has a lower melting point. This is primarily because:",
+                options: [
+                    "a) KF has ions with greater charges.",
+                    "b) NaF has a stronger ionic bond.",
+                    "c) K⁺ ion has a larger ionic radius than Na⁺ ion.",
+                    "d) KF is more soluble in polar solvents."
+                ],
+                answer: "c) K⁺ ion has a larger ionic radius than Na⁺ ion."
+            },
+            {
+                question: "What is the octet rule?",
+                options: [
+                    "a) Atoms tend to lose electrons to achieve a full outer shell of 2 electrons.",
+                    "b) Atoms tend to bond together in order to achieve a full valence shell containing eight electrons.",
+                    "c) Atoms always form ionic bonds to satisfy their electron configurations.",
+                    "d) Only noble gases have a stable electron configuration."
+                ],
+                answer: "b) Atoms tend to bond together in order to achieve a full valence shell containing eight electrons."
+            },
+            {
+                question: "How do atoms achieve a full valence shell according to the octet rule?",
+                options: [
+                    "a) Only by transferring electrons (ionic bonding)",
+                    "b) Only by sharing electrons (covalent bonding)",
+                    "c) Either by sharing electrons (covalent bonding) or by transferring electrons (ionic bonding)",
+                    "d) By always forming metallic bonds"
+                ],
+                answer: "c) Either by sharing electrons (covalent bonding) or by transferring electrons (ionic bonding)"
+            },
+            {
+                question: "In the formation of an ionic bond between sodium and chlorine, a sodium atom:",
+                options: [
+                    "a) Shares an electron with chlorine.",
+                    "b) Gains an electron from chlorine.",
+                    "c) Transfers an electron to chlorine.",
+                    "d) Forms a covalent bond with chlorine."
+                ],
+                answer: "c) Transfers an electron to chlorine."
+            },
+            {
+                question: "In the formation of an ionic bond between sodium and chlorine, a chlorine atom:",
+                options: [
+                    "a) Loses an electron to sodium.",
+                    "b) Shares an electron with sodium.",
+                    "c) Gains an electron from sodium.",
+                    "d) Forms a covalent bond with sodium."
+                ],
+                answer: "c) Gains an electron from sodium."
+            },
+            {
+                question: "The sodium ion (Na⁺) has the same electron configuration as which noble gas?",
+                options: ["a) Argon", "b) Krypton", "c) Neon", "d) Helium"],
+                answer: "c) Neon"
+            },
+            {
+                question: "The chloride ion (Cl⁻) has the same electron configuration as which noble gas?",
+                options: ["a) Neon", "b) Argon", "c) Krypton", "d) Helium"],
+                answer: "b) Argon"
+            },
+            {
+                question: "Which of the following is NOT a general property of ionic compounds?",
+                options: [
+                    "a) High melting points",
+                    "b) Soluble in polar solvents",
+                    "c) Conduct electricity when molten",
+                    "d) Low boiling points"
+                ],
+                answer: "d) Low boiling points"
+            },
+            {
+                question: "Why are ionic compounds typically soluble in polar solvents like water?",
+                options: [
+                    "a) Water molecules form strong covalent bonds with the ions.",
+                    "b) The non-polar nature of water attracts the ions.",
+                    "c) The polar water molecules can interact with and surround the charged ions, overcoming the lattice energy.",
+                    "d) Ionic compounds do not dissolve in polar solvents."
+                ],
+                answer: "c) The polar water molecules can interact with and surround the charged ions, overcoming the lattice energy."
+            },
+            {
+                question: "In the context of ionic bonding, what is a lattice energy?",
+                options: [
+                    "a) The energy released when electrons are shared between atoms.",
+                    "b) The energy required to melt an ionic compound.",
+                    "c) The energy released when gaseous ions combine to form a solid ionic compound.",
+                    "d) The energy required to dissolve an ionic compound in water."
+                ],
+                answer: "c) The energy released when gaseous ions combine to form a solid ionic compound."
+            },
+            {
+                question: "Which of the following factors generally leads to a higher lattice energy in ionic compounds?",
+                options: [
+                    "a) Smaller ionic charges and larger ionic radii.",
+                    "b) Larger ionic radii only.",
+                    "c) Larger ionic charges and smaller ionic radii.",
+                    "d) Smaller ionic charges only."
+                ],
+                answer: "c) Larger ionic charges and smaller ionic radii."
+            }
+        ];
+
+
+        const quizContainer = document.getElementById('quiz-container');
+        const questionArea = document.getElementById('question-area');
+        const questionText = document.getElementById('question-text');
+        const progressText = document.getElementById('progress-text');
+        const liveScoreText = document.getElementById('live-score-text');
+        const timerText = document.getElementById('timer-text'); // <-- Get timer display
+        const optionsArea = document.getElementById('options-area');
+        const feedbackArea = document.getElementById('feedback-area');
+        const nextButton = document.getElementById('next-button');
+        const scoreArea = document.getElementById('score-area');
+        const scoreText = document.getElementById('score-text');
+        const finalTimeText = document.getElementById('final-time-text'); // <-- Get final time display
+        const restartButton = document.getElementById('restart-button');
+
+        // --- Quiz State ---
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answerSelected = false;
+        let startTime = 0; // <-- Variable for timer start
+        let timerInterval = null; // <-- Variable for timer interval ID
+
+        // --- Functions ---
+
+        /**
+         * Formats time in seconds into MM:SS format.
+         * @param {number} totalSeconds - The total seconds elapsed.
+         * @returns {string} Formatted time string (MM:SS).
+         */
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = Math.floor(totalSeconds % 60);
+            // Pad with leading zero if needed
+            const paddedMinutes = String(minutes).padStart(2, '0');
+            const paddedSeconds = String(seconds).padStart(2, '0');
+            return `${paddedMinutes}:${paddedSeconds}`;
+        }
+
+        /**
+         * Updates the timer display every second.
+         */
+        function updateTimer() {
+            const now = Date.now();
+            const elapsedMilliseconds = now - startTime;
+            const elapsedSeconds = elapsedMilliseconds / 1000;
+            timerText.textContent = `Time: ${formatTime(elapsedSeconds)}`;
+        }
+
+        /**
+         * Starts the timer.
+         */
+        function startTimer() {
+            startTime = Date.now(); // Record start time
+            timerText.textContent = 'Time: 00:00'; // Initial display
+             // Clear any existing interval before starting a new one (important for restart)
+            if (timerInterval) {
+                clearInterval(timerInterval);
+            }
+            // Update the timer every second (1000 milliseconds)
+            timerInterval = setInterval(updateTimer, 1000);
+        }
+
+        /**
+         * Stops the timer.
+         */
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval); // Stop the interval
+                timerInterval = null; // Reset interval ID
+            }
+        }
+
+
+        /**
+         * Updates the live score display.
+         */
+        function updateLiveScore() {
+            liveScoreText.textContent = `Score: ${score} / ${currentQuestionIndex}`;
+        }
+
+        /**
+         * Loads and displays the current question and its options.
+         */
+        function loadQuestion() {
+            answerSelected = false;
+            feedbackArea.textContent = '';
+            optionsArea.innerHTML = '';
+            nextButton.disabled = true;
+            feedbackArea.classList.remove('text-green-600', 'text-red-500');
+
+            if (currentQuestionIndex < quizData.length) {
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionText.textContent = currentQuestion.question;
+                progressText.textContent = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+
+                updateLiveScore(); // Update score display
+
+                // Only start the timer if it's the very first question and timer isn't running
+                if (currentQuestionIndex === 0 && !timerInterval) {
+                    startTimer();
+                }
+
+                currentQuestion.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.classList.add(
+                        'option-button', 'w-full', 'text-left', 'p-3', 'border',
+                        'border-gray-300', 'rounded-lg', 'bg-white', 'text-gray-700',
+                        'hover:bg-gray-100', 'focus:outline-none', 'focus:ring-2',
+                        'focus:ring-blue-300', 'transition', 'duration-150', 'disabled:opacity-50'
+                    );
+                    button.onclick = () => selectAnswer(button, option, currentQuestion.answer);
+                    optionsArea.appendChild(button);
+                });
+
+                questionArea.style.display = 'block';
+                optionsArea.style.display = 'grid';
+                nextButton.style.display = 'inline-block';
+                scoreArea.style.display = 'none';
+                liveScoreText.style.display = 'block';
+                timerText.style.display = 'block'; // Ensure timer is visible
+
+            } else {
+                showScore();
+            }
+        }
+
+        /**
+         * Handles the logic when a user selects an answer.
+         * @param {HTMLButtonElement} selectedButton - The button element that was clicked.
+         * @param {string} selectedOption - The text content of the selected option.
+         * @param {string} correctAnswer - The correct answer for the current question.
+         */
+        function selectAnswer(selectedButton, selectedOption, correctAnswer) {
+            if (answerSelected) return;
+
+            answerSelected = true;
+            nextButton.disabled = false;
+
+            const optionButtons = optionsArea.querySelectorAll('.option-button');
+            optionButtons.forEach(btn => {
+                btn.disabled = true;
+                 if (btn !== selectedButton && btn.textContent !== correctAnswer) {
+                    btn.classList.add('opacity-70');
+                 }
+            });
+
+            if (selectedOption === correctAnswer) {
+                score++;
+                selectedButton.classList.remove('bg-white', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-100');
+                selectedButton.classList.add('correct');
+                feedbackArea.textContent = 'Correct!';
+                feedbackArea.classList.add('text-green-600');
+                feedbackArea.classList.remove('text-red-500');
+            } else {
+                selectedButton.classList.remove('bg-white', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-100');
+                selectedButton.classList.add('incorrect');
+
+                 let correctAnswerFullText = correctAnswer;
+                 optionButtons.forEach(btn => {
+                     if (btn.textContent === correctAnswer) {
+                         correctAnswerFullText = btn.textContent;
+                         btn.classList.remove('bg-white', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-100', 'opacity-70');
+                         btn.classList.add('show-correct');
+                     }
+                 });
+                feedbackArea.textContent = `Incorrect. The correct answer was: ${correctAnswerFullText}`;
+                feedbackArea.classList.add('text-red-500');
+                feedbackArea.classList.remove('text-green-600');
+            }
+        }
+
+        /**
+         * Displays the final score and time at the end of the quiz.
+         */
+        function showScore() {
+            stopTimer(); // Stop the timer when quiz ends
+
+            // Calculate final time
+            const finalElapsedMilliseconds = Date.now() - startTime;
+            const finalElapsedSeconds = finalElapsedMilliseconds / 1000;
+
+            questionArea.style.display = 'none';
+            optionsArea.style.display = 'none';
+            feedbackArea.style.display = 'none';
+            nextButton.style.display = 'none';
+            scoreArea.style.display = 'block';
+
+            scoreText.textContent = `You scored ${score} out of ${quizData.length}!`;
+            finalTimeText.textContent = `Total time: ${formatTime(finalElapsedSeconds)}`; // Display final time
+        }
+
+        /**
+         * Resets the quiz to the beginning.
+         */
+        function restartQuiz() {
+            stopTimer(); // Stop any running timer
+            currentQuestionIndex = 0;
+            score = 0;
+            startTime = 0; // Reset start time
+            timerText.textContent = ''; // Clear timer display
+            finalTimeText.textContent = ''; // Clear final time display
+            feedbackArea.style.display = 'block';
+            loadQuestion(); // Load the first question (this will restart the timer)
+        }
+
+        // --- Event Listeners ---
+        nextButton.addEventListener('click', () => {
+            if (answerSelected) {
+                 currentQuestionIndex++;
+                 loadQuestion();
+            }
+        });
+
+        restartButton.addEventListener('click', restartQuiz);
+
+        // --- Initial Load ---
+        window.onload = loadQuestion; // Start the quiz, timer will start within loadQuestion
+
+    </script>
+
+</body>
+</html>
