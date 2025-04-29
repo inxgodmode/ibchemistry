@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chemistry SL Paper 1A Quiz</title>
+    <title>Chemistry SL Custom Quiz</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         MathJax = {
           tex: {
             inlineMath: [['$', '$'], ['\\(', '\\)']],
             displayMath: [['$$', '$$'], ['\\[', '\\]']],
-            processEscapes: true
+            processEscapes: true,
+            tags: 'ams' // Optional: for equation numbering
           },
           svg: {
             fontCache: 'global'
@@ -23,7 +24,7 @@
     <style>
         /* Custom styles for better appearance */
         body {
-            font-family: 'Inter', sans-serif; /* Using Inter font as preferred */
+            font-family: 'Inter', sans-serif; /* Using Inter font */
         }
         .quiz-container, .results-container {
             max-width: 800px;
@@ -43,7 +44,8 @@
             margin-bottom: 0;
             padding-bottom: 0;
         }
-        label {
+        /* Style for radio button labels */
+        label.option-label {
             display: block;
             margin-bottom: 0.5rem;
             padding: 0.75rem;
@@ -59,10 +61,11 @@
          input[type="radio"]:checked + span {
              font-weight: 600; /* Bold text for selected option */
          }
-        label:hover {
+        label.option-label:hover {
             background-color: #f3f4f6; /* Light gray background on hover */
             border-color: #9ca3af;
         }
+        /* Submit button style */
         .submit-btn {
             display: block;
             width: 100%;
@@ -79,6 +82,7 @@
         .submit-btn:hover {
             background-color: #2563eb; /* Darker blue on hover */
         }
+        /* Results section styling */
         .results-summary p {
             margin-bottom: 0.5rem;
             font-size: 1.1rem;
@@ -108,15 +112,22 @@
         th {
             background-color: #f3f4f6;
         }
+        /* Question text styling */
+        .question-text {
+             margin-bottom: 1rem;
+             color: #374151; /* Darker gray text */
+             font-weight: 500; /* Medium weight */
+             line-height: 1.6;
+        }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
 
     <div id="quiz-container" class="quiz-container">
-        <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">Chemistry SL Paper 1A Quiz</h1>
+        <h1 class="text-2xl font-semibold mb-6 text-center text-gray-800">Chemistry SL Quiz</h1>
         <form id="quiz-form">
             <button type="submit" class="submit-btn">Submit Answers</button>
         </form>
@@ -137,255 +148,237 @@
 
     <script>
         // Quiz data: questions, options, and correct answers
+        // Filtered to include only MCQ questions from the user's list
         const quizData = [
-            {
-                question: "1. Which technique is used to purify a solid obtained from a chemical reaction?",
-                options: { A: "distillation", B: "evaporation", C: "recrystallization", D: "filtration" },
-                correctAnswer: "C"
-            },
-            {
-                question: "2. Ice containing only the isotope $^{2}H$ sinks and does not melt when dropped into ordinary distilled water maintained at $3^{\\circ}C$. Which statement is correct?",
+             {
+                question: "1. Which sample contains the fewest moles of HCl? <br>$N_A=6.02 \\times 10^{23} \\, mol^{–1}$.<br>Molar volume of an ideal gas at $STP=22.7 \\, dm^3 \\, mol^{–1}$.",
                 options: {
-                    A: "The isotope $^{2}H$ has a high natural abundance.",
-                    B: "$^{2}H_{2}O(s)$ has a higher melting point than normal ice.",
-                    C: "$^{2}H_{2}O(s)$ has a lower density than normal ice-cold water.",
-                    D: "$^{2}H_{2}O$ has different chemical properties from normal water."
+                    A: "$2.27 \\, dm^3$ of HCl (g) at STP",
+                    B: "$6.02 \\times 10^{24}$ molecules of HCl (g)",
+                    C: "$10.0 \\, cm^3$ of $0.1 \\, mol \\, dm^{–3}$ HCl (aq)",
+                    D: "$0.365 \\, g$ of HCl (g)"
                 },
-                correctAnswer: "B"
+                correctAnswer: "C" // 0.1 mol, 10 mol, 0.001 mol, 0.01 mol
             },
             {
-                question: "3. Which electron transition in the hydrogen atom emits radiation with the highest energy?",
-                options: { A: "n = 1 to n = 2", B: "n = 2 to n = 3", C: "n = 2 to n = 1", D: "n = 3 to n = 2" },
+                question: "3. What is the concentration, in $mol \\, dm^{−3}$, of 20.0 g of KOH ($M_r = 40.0$) in $500.0 \\, cm^3$?",
+                options: { A: "0.250", B: "0.500", C: "1.00", D: "4.00" },
+                correctAnswer: "C" // Moles = 20/40 = 0.5 mol. Conc = 0.5 mol / 0.5 dm3 = 1.00 M
+            },
+            {
+                question: "5. $5.0 \\, cm^3$ of $2.00 \\, mol \\, dm^{−3}$ sodium carbonate solution, $Na_2CO_3$ (aq), was added to a volumetric flask and the volume was made up to $500 \\, cm^3$ with water. What is the concentration, in $mol \\, dm^{−3}$, of the solution?",
+                options: { A: "0.0040", B: "0.0050", C: "0.020", D: "0.010" },
+                correctAnswer: "C" // M1V1=M2V2 -> (2.00)(5.0) = M2(500) -> M2 = 10/500 = 0.020 M
+            },
+            {
+                question: "6. Which of the following statements about the nuclear atom is correct?",
+                options: {
+                    A: "Electrons are located in the nucleus.",
+                    B: "Neutrons and protons have the same mass and charge.",
+                    C: "The nucleus is positively charged.",
+                    D: "The nucleus occupies most of the atom's volume."
+                },
                 correctAnswer: "C"
             },
             {
-                question: "4. A container holds 30g of argon and 60g of neon. What is the ratio of number of atoms of argon to number of atoms of neon in the container?",
-                options: { A: "0.25", B: "0.50", C: "2.0", D: "4.0" },
-                correctAnswer: "A"
+                question: "7. Which of the following changes of state is an exothermic process?",
+                options: { A: "Melting", B: "Evaporating", C: "Freezing", D: "Subliming" },
+                correctAnswer: "C" // Releasing heat
             },
             {
-                question: "5. A gas storage tank of fixed volume V contains N molecules of an ideal gas at 300K with a pressure of 40kPa. N/4 molecules are removed, and the temperature is changed to 450K. What is the new pressure of the gas in kPa?",
-                options: { A: "15", B: "30", C: "45", D: "60" },
-                correctAnswer: "C"
-            },
-            {
-                question: "6. What is the formula of the compound formed between magnesium ions and hydrogencarbonate ions?",
-                options: { A: "$MgHCO_{3}$", B: "$Mg(HCO_{3})_{2}$", C: "$Mg(HCO_{3})_{3}$", D: "$Mg_{3}(HCO_{3})_{2}$" },
-                correctAnswer: "B"
-            },
-            {
-                question: "7. Which species contains a coordination bond?",
-                options: { A: "$CO_{2}$", B: "HCN", C: "$NO_{2}^{+}$", D: "$NO_{3}^{-}$" },
+                question: "8. Which diminishes as a liquid is heated to become a vapor?",
+                options: {
+                    A: "Motion of the particles",
+                    B: "Size of the particles",
+                    C: "Space between the particles",
+                    D: "Attractive forces between particles"
+                },
                 correctAnswer: "D"
             },
             {
-                question: "8. Which properties depend on the movement of the delocalized electrons in a metal?<br>I. Electrical conductivity<br>II. Thermal conductivity<br>III. Density",
-                options: { A: "I and II only", B: "I and III only", C: "II and III only", D: "I, II and III" },
-                correctAnswer: "A"
+                question: "9. How many moles of $CuS_2$ are required to produce 32 g of $SO_2$? ($A_r: S=32, O=16$) <br> $4CuS_2(s)+11O_2(g) \\rightarrow 2Cu_2O_3(s)+8SO_2(g)$",
+                options: { A: "0.50", B: "2.0", C: "1.0", D: "0.25" },
+                correctAnswer: "D" // Moles SO2 = 32/64 = 0.5 mol. Ratio CuS2:SO2 = 4:8 = 1:2. Moles CuS2 = 0.5/2 = 0.25 mol.
             },
             {
-                question: `9. Which substance, made from two elements with electronegativities $E_X$ and $E_Y$, is an alloy?
+                question: "12. Which equation represents the deposition of bromine?",
+                options: {
+                    A: "$Br_2 \\, (g) \\rightarrow Br_2 \\, (l)$",
+                    B: "$Br_2 \\, (s) \\rightarrow Br_2 \\, (g)$",
+                    C: "$Br_2 \\, (g) \\rightarrow Br_2 \\, (s)$",
+                    D: "$Br_2 \\, (l) \\rightarrow Br_2 \\, (g)$"
+                },
+                correctAnswer: "C" // Deposition is gas to solid
+            },
+            {
+                question: "15. A sample of neon is analyzed using a mass spectrometer. The mass spectrum shows three peaks at 20.0, 21.0, and 22.0 with relative abundances of 90.5%, 0.3%, and 9.2%, respectively. What is the relative atomic mass ($A_r$) of neon, based on this data?",
+                options: { A: "20.2", B: "20.4", C: "20.6", D: "21.0" },
+                correctAnswer: "A" // (20*0.905)+(21*0.003)+(22*0.092) = 18.1 + 0.063 + 2.024 = 20.187
+            },
+            {
+                question: "16. What does $^{24}_{12}Mg^{2+}$ represent?",
+                options: {
+                    A: "An ion with 14 protons and 24 neutrons",
+                    B: "An ion with 12 protons and 22 neutrons",
+                    C: "An ion with 12 protons and 12 neutrons",
+                    D: "An ion with 12 protons and 24 neutrons"
+                },
+                correctAnswer: "C" // 12 protons, 24-12=12 neutrons
+            },
+            {
+                question: "17. Which of the following contains the greatest number of molecules?",
+                options: {
+                    A: "1 g of $CHCl_3$",
+                    B: "1 g of $CH_2Cl_2$",
+                    C: "1 g of $CH_3Cl$",
+                    D: "1 g of $CCl_4$"
+                },
+                correctAnswer: "C" // Greatest moles = smallest molar mass
+            },
+            {
+                question: "18. What is the ground state electron configuration of an atom of chromium, Cr (Z = 24)?",
+                options: {
+                    A: "[Ar] $4s^2 3d^4$",
+                    B: "[Ar] $4s^1 3d^5$",
+                    C: "[Ar] $4s^2 4p^4$",
+                    D: "[Ar] $3d^6$"
+                },
+                correctAnswer: "B" // Exception for stability
+            },
+            {
+                question: "19. How many grams of sodium azide, $NaN_3$, are needed to produce $68.1 \\, dm^3$ of nitrogen gas, $N_2$ (g), at standard temperature and pressure (STP)?<br>Molar volume at $STP=22.7 \\, dm^3 \\, mol^{–1}$; $M_r(NaN_3)=65.0$<br>$2NaN_3(s) \\rightarrow 3N_2(g)+2Na(s)$",
+                options: { A: "195.0", B: "32.5", C: "65.0", D: "130.0" },
+                correctAnswer: "D" // Moles N2 = 68.1/22.7 = 3 mol. Moles NaN3 = 3 * (2/3) = 2 mol. Mass = 2 * 65.0 = 130.0 g
+            },
+            {
+                question: "20. Which of these molecular formulae are also empirical formulae?<br>I. $C_2H_6O$<br>II. $C_2H_4O_2$<br>III. $C_5H_{12}$",
+                options: { A: "I, II and III", B: "II and III only", C: "I and II only", D: "I and III only" },
+                correctAnswer: "D" // I and III cannot be simplified further
+            },
+            {
+                question: "22. What is the mass (in grams) of one molecule of water?",
+                options: { A: "$3.0 \\times 10^{-23}$", B: "$1.8 \\times 10^{-22}$", C: "3.0", D: "18.0" },
+                correctAnswer: "A" // 18.02 g/mol / (6.02e23 /mol) = 2.99e-23 g
+            },
+            {
+                question: "23. Which experimental findings support the hypothesis that electrons exist in discrete energy levels?",
+                options: { A: "Emission spectra", B: "$^1H \\, NMR$", C: "X-ray diffraction pattern", D: "IR spectra" },
+                correctAnswer: "A" // Line spectra correspond to transitions between discrete levels
+            },
+            {
+                question: "25. How does a lithium atom form the most stable ion?",
+                options: {
+                    A: "The atom gains a proton to form a positive ion.",
+                    B: "The atom loses a proton to form a negative ion.",
+                    C: "The atom loses an electron to form a positive ion.",
+                    D: "The atom gains an electron to form a negative ion."
+                },
+                correctAnswer: "C" // Loses valence electron -> Li+
+            },
+             {
+                question: "27. Which of the following statements correctly describes the number of atoms in 0.50 mol of methane, $CH_4$?",
+                options: {
+                    A: "There are $3.01 \\times 10^{23}$ carbon atoms.",
+                    B: "There are $1.20 \\times 10^{24}$ total atoms.",
+                    C: "There are $6.02 \\times 10^{23}$ hydrogen atoms.",
+                    D: "There are $3.01 \\times 10^{24}$ total atoms."
+                },
+                correctAnswer: "A" // 0.5 mol * 1 C/molecule * NA = 0.5 * NA = 3.01e23 C atoms
+            },
+            {
+                 question: `33. 5.0 mol of $Fe_2O_3(s)$ and 6.0 mol of CO(g) react according to the equation below. What is the limiting reactant and how many moles of the excess reactant remain unreacted? <br> $Fe_2O_3(s)+3CO(g) \\rightarrow 2Fe(s)+3CO_2(g)$
                     <table>
-                        <thead><tr><th>Option</th><th>Average electronegativity $\\frac{E_X + E_Y}{2}$</th><th>Electronegativity difference $|E_X - E_Y|$</th></tr></thead>
+                        <thead><tr><th>Answer</th><th>Limiting reactant</th><th>Moles of excess reactant remaining</th></tr></thead>
                         <tbody>
-                            <tr><td>A</td><td>2.5</td><td>2.5</td></tr>
-                            <tr><td>B</td><td>2.5</td><td>1.0</td></tr>
-                            <tr><td>C</td><td>3.5</td><td>0.2</td></tr>
-                            <tr><td>D</td><td>1.2</td><td>0.2</td></tr>
+                            <tr><td>A</td><td>CO</td><td>2.0</td></tr>
+                            <tr><td>B</td><td>CO</td><td>3.0</td></tr>
+                            <tr><td>C</td><td>$Fe_2O_3$</td><td>1.0</td></tr>
+                            <tr><td>D</td><td>$Fe_2O_3$</td><td>2.0</td></tr>
                         </tbody>
                     </table>`,
-                options: { A: "A", B: "B", C: "C", D: "D" }, // Options refer to table rows
-                correctAnswer: "D",
-                isTableQuestion: true // Flag to handle option display
-            },
-             {
-                question: "10. Which structure shows the repeating unit of the polymer formed by but-1-ene?",
-                // Representing structures textually
-                options: {
-                    A: "$-\\left[ C(H)(H)-C(H)(CH_3)-C(H)(H) \\right]-$",
-                    B: "$-\\left[ C(H)(CH_3)-C(H)(CH_3) \\right]-$",
-                    C: "$-\\left[ C(CH_3)(H)-C(CH_3)(H) \\right]-$",
-                    D: "$-\\left[ C(H)(H)-C(H)(CH_2CH_3) \\right]-$"
-                 },
-                correctAnswer: "D"
-            },
-            {
-                question: "11. What is the explanation for the malleability of metals?",
-                options: {
-                    A: "The bonds are strong.",
-                    B: "The bonds are weak.",
-                    C: "The bonds involve free electrons.",
-                    D: "The bonds do not have a specific direction."
-                },
-                correctAnswer: "D"
-            },
-            {
-                question: "12. Which functional groups are present in a molecule containing an amine group (-NH2), an ether linkage (-O-), and an ester group (-COO-)?", // Description based on SL paper molecule for Q12
-                options: {
-                    A: "amino, alkoxy, ester", // Alkoxy is another term for ether group here
-                    B: "ether, carboxyl, amino",
-                    C: "carboxyl, alkoxy, ester",
-                    D: "ester, amino, carboxyl"
-                },
-                correctAnswer: "A"
-            },
-            {
-                question: "13. In which block of the periodic table would element 119 be placed, if it is found in the future?",
-                options: { A: "s", B: "p", C: "d", D: "f" },
-                correctAnswer: "A"
-            },
-            {
-                question: "14. Which is a correct alternative representation of 2,2-dichlorobut-1-ene?", // Added name for clarity
-                options: {
-                    A: "$C_3H_6Cl_2$",
-                    B: "Skeletal structure of 1,2-dichlorocyclopropane", // Description
-                    C: "2,2-dichlorobut-1-ene (Name)", // Explicitly stating name
-                    D: "$CH_3CH_2C(Cl)_2CH=CH_2$" // Corrected condensed formula for 2,2-dichlorobutane, let's use the one from the paper: CH3CHClC(Cl)=CH2 which is 1,2-dichloro-1-propene. The actual answer D from the markscheme corresponds to CH3CHClC(Cl)=CH2. Let's assume the question meant 1,2-dichloro-1-propene. Rechecking paper: The image is CH2=C(Cl)-CHCl-CH3 (2,3-dichlorobut-1-ene). The option D is CH3CHClC(Cl)=CH2 (1,2-dichlorobut-1-ene). The markscheme says D. There seems to be a mismatch between image, option D text, and markscheme answer in the source PDF. Following markscheme answer D and its corresponding text representation.
-                },
-                correctAnswer: "D" // Following markscheme despite potential inconsistency in source
-            },
-            {
-                question: "15. The block structure of the periodic table groups elements according to which characteristic?",
-                options: { A: "atomic number", B: "atomic mass", C: "electron configuration", D: "reactivity" },
-                correctAnswer: "C"
-            },
-            {
-                question: "16. Which set of conditions describe a reaction in which the reactants are more stable than the products?",
-                options: {
-                    A: "endothermic and $\\Delta H$ negative",
-                    B: "endothermic and $\\Delta H$ positive",
-                    C: "exothermic and $\\Delta H$ negative",
-                    D: "exothermic and $\\Delta H$ positive"
-                },
-                correctAnswer: "B" // Reactants more stable means energy is absorbed (endothermic, delta H positive)
-            },
-            {
-                question: "17. Which enthalpy changes can be calculated using only bond enthalpy data?<br>I. $N_2 (g) + 2H_2 (g) \\rightarrow N_2H_4 (g)$<br>II. $CH_4 (g) + 2O_2 (g) \\rightarrow 2H_2O(l) + CO_2 (g)$<br>III. $H_2 (g) + Cl_2 (g) \\rightarrow 2HCl(g)$",
-                options: { A: "I and II only", B: "I and III only", C: "II and III only", D: "I, II and III" },
-                correctAnswer: "B" // Bond enthalpies are for gaseous state, II involves liquid water.
-            },
-             {
-                question: "18. Which is a renewable energy source?",
-                options: { A: "natural gas", B: "uranium", C: "coal", D: "wood" },
-                correctAnswer: "D"
-            },
-            {
-                question: "19. What is the amount, in mol, of $H_2O$ produced for a reaction between 10.0mol of $C_2H_3Cl$ and 10.0mol of $O_2$ if the yield is 90%? <br> $2C_2H_3Cl(g) + 5O_2 (g) \\rightarrow 4CO_2 (g) + 2H_2O(g) + 2HCl(g)$",
-                options: { A: "3.60", B: "4.00", C: "9.00", D: "10.00" },
-                correctAnswer: "A" // O2 is limiting reactant (10 mol O2 -> 4 mol H2O theoretical). 90% yield = 0.9 * 4 = 3.6 mol.
-            },
-            {
-                question: "20. The complete combustion of $20.0cm^3$ of a gaseous hydrocarbon, $C_xH_y$, produces $80.0cm^3$ of gaseous products. This volume reduces to $40.0cm^3$ when the water vapour present condenses. All volumes are measured at the same temperature and pressure. What is the molecular formula of the hydrocarbon?",
-                options: { A: "$CH_4$", B: "$C_2H_2$", C: "$C_2H_4$", D: "$C_3H_6$" },
-                correctAnswer: "C" // H2O = 80-40=40cm3. CO2=40cm3. Ratio CxHy:CO2:H2O = 20:40:40 = 1:2:2. -> C2H4.
-            },
-            {
-                 question: "21. Large deposits of methane hydrate, $CH_4 \\cdot 6H_2O$ ($M_r = 124$), have been discovered under the ocean floor. What mass of carbon dioxide would be produced by the complete combustion of 12.4g of the methane hydrate?",
-                options: { A: "4.40g", B: "26.4g", C: "34.1g", D: "44.0g" },
-                correctAnswer: "A" // 12.4g hydrate = 0.1 mol. Combustion is CH4 + 2O2 -> CO2 + 2H2O. 0.1 mol CH4 -> 0.1 mol CO2. Mass CO2 = 0.1 * 44.01 = 4.40g.
-            },
-            {
-                question: "22. The diagram shows an energy profile for an exothermic reaction where Y represents the energy from reactants to the transition state, X represents the overall enthalpy change (reactants to products), and Z represents the energy from products to the transition state. Which combination is correct for the activation energies?",
-                options: {
-                    A: "Forward: X, Reverse: Z",
-                    B: "Forward: Y - X, Reverse: Y - Z", // This seems incorrect based on common definitions. Y is usually Ea(fwd). Z is Ea(rev). X is Delta H.
-                    C: "Forward: Y, Reverse: Y",
-                    D: "Forward: Y - X, Reverse: Z - X"
-                 },
-                 // Let's assume Y is Ea(fwd), Z is Ea(rev), and X is Delta H = Ea(fwd) - Ea(rev) = Y - Z.
-                 // Markscheme says B. Let's re-interpret the labels based on the image structure in the PDF (page 92).
-                 // Y is the peak energy relative to reactants (Ea fwd).
-                 // Z is the peak energy relative to products (Ea rev).
-                 // X is the difference between reactants and products (Delta H).
-                 // So, Ea(fwd) = Y. Ea(rev) = Z. Delta H = X.
-                 // Option B in the PDF is: Ea(fwd) = Y-X, Ea(rev) = Y-Z. This doesn't match standard definitions or the PDF image labels.
-                 // Let's re-examine the image on page 92. Y is the arrow from reactants to peak. X is arrow from reactants to products. Z is arrow from products to peak.
-                 // So, Ea(fwd) = Y. Ea(rev) = Z. Delta H = X.
-                 // The options provided in the PDF text for Q22 are:
-                 // A. Ea(fwd)=X, Ea(rev)=Z
-                 // B. Ea(fwd)=Y-X, Ea(rev)=Y-Z
-                 // C. Ea(fwd)=Y, Ea(rev)=Y
-                 // D. Ea(fwd)=Y-X, Ea(rev)=Z-X
-                 // The markscheme answer is B. This implies the labels in the *options table* (not the diagram arrows) are defined differently. Let's assume the options table defines the terms.
-                 // If B is correct: Activation energy of forward reaction = Y-X. Activation energy of reverse reaction = Y-Z. This is highly non-standard.
-                 // Given the discrepancy, I will use the standard interpretation from the diagram: Ea(fwd)=Y, Ea(rev)=Z. Let's find the option that matches this best, or stick to the markscheme. Sticking to markscheme B.
-                correctAnswer: "B"
-            },
-            {
-                question: "23. What is the main reason for an increase in rate of reaction when the temperature is raised?",
-                options: {
-                    A: "A greater proportion of collisions are successful.",
-                    B: "Particles collide more frequently.",
-                    C: "The bonds in the reactants are weakened.",
-                    D: "The activation energy of the reaction decreases."
-                },
-                correctAnswer: "A"
-            },
-            {
-                question: "24. What is the equilibrium constant expression for the following reaction? <br> $2SO_3 (g) \\rightleftharpoons 2SO_2 (g) + O_2 (g)$",
-                options: {
-                    A: "$\\frac{[SO_2]^2 [O_2]}{[SO_3]^2}$",
-                    B: "$\\frac{[SO_2]^2 + [O_2]}{[SO_3]^2}$",
-                    C: "$\\frac{[SO_3]^2}{[SO_2]^2 [O_2]}$",
-                    D: "$\\frac{2[SO_2][O_2]}{2[SO_3]}$"
-                },
-                correctAnswer: "A"
-            },
-             {
-                question: "25. Which reactions involve the transfer of a proton?<br>I. $2HCl(aq) + Mg(s) \\rightarrow MgCl_2 (aq) + H_2 (g)$<br>II. $2HCl(aq) + MgO(s) \\rightarrow MgCl_2 (aq) + H_2O(l)$<br>III. $2HCl(aq) + MgCO_3 (s) \\rightarrow MgCl_2 (aq) + H_2O(l) + CO_2 (g)$",
-                options: { A: "I and II only", B: "I and III only", C: "II and III only", D: "I, II and III" },
-                correctAnswer: "C" // II and III are acid-base reactions. I is redox.
-            },
-            {
-                question: "26. The overall reaction occurring at the electrodes of a rechargeable metal hydride battery can be summarized as: $MH + NiO(OH) \\rightleftharpoons M + Ni(OH)_2$. Which statement is correct?",
-                options: {
-                    A: "The oxidation state of Ni does not change.", // Ni changes from +3 in NiO(OH) to +2 in Ni(OH)2
-                    B: "M is oxidized by loss of hydrogen.", // M goes from 0 to + in MH (M is metal hydride anode, H is -1), then back to 0. M is oxidized during charging, reduced during discharge. MH -> M + H+ + e- (anode discharge). H is oxidized from -1 to 0? No, H stays +1 in Ni(OH)2. Let's check oxidation states: MH (H=-1, M=+1 usually). NiO(OH) (O=-2, H=+1 -> Ni + (-2) + (-2+1) = 0 -> Ni=+3). M (M=0). Ni(OH)2 (O=-2, H=+1 -> Ni + 2(-2+1)=0 -> Ni=+2). H in MH is -1. H in Ni(OH)2 is +1. So H changes from -1 to +1.
-                    C: "The oxidation state of one H atom changes from -1 to +1.", // H in MH is -1, H in Ni(OH)2 is +1.
-                    D: "The oxidation state of one O atom changes from -1 to -2." // O in NiO(OH) is -2. O in Ni(OH)2 is -2.
-                },
-                correctAnswer: "C"
-            },
-            {
-                question: "27. In a redox titration, manganate(VII) ions are reduced to manganese(II) ions and iron(II) ions are oxidized to iron(III) ions.<br>$MnO_4^-(aq)$ reduced to $Mn^{2+}(aq)$<br>$Fe^{2+}(aq)$ oxidized to $Fe^{3+}(aq)$<br>What volume, in $cm^3$, of $0.1 \\, mol \\, dm^{-3} \\, MnO_4^-(aq)$ is required to reach the equivalence point in the titration of $20.00 \\, cm^3$ of $0.1 \\, mol \\, dm^{-3} \\, Fe^{2+}(aq)$?",
-                options: { A: "2.00", B: "4.00", C: "20.00", D: "100.00" },
-                // Balanced eqn: MnO4- + 8H+ + 5e- -> Mn2+ + 4H2O. Fe2+ -> Fe3+ + e-.
-                // Overall: MnO4- + 8H+ + 5Fe2+ -> Mn2+ + 4H2O + 5Fe3+. Ratio MnO4-:Fe2+ is 1:5.
-                // Moles Fe2+ = 0.02000 dm3 * 0.1 mol/dm3 = 0.00200 mol.
-                // Moles MnO4- needed = 0.00200 / 5 = 0.000400 mol.
-                // Volume MnO4- = 0.000400 mol / 0.1 mol/dm3 = 0.00400 dm3 = 4.00 cm3.
-                correctAnswer: "B"
-            },
-             {
-                question: "28. What is the organic product of the reaction of 1-chloropentane with aqueous sodium hydroxide?",
-                options: {
-                    A: "pentan-1-ol", // Nucleophilic substitution (SN2 for primary)
-                    B: "1-chloropentan-1-ol",
-                    C: "1-chloropent-1-ene",
-                    D: "1-chloropent-2-ene"
-                },
-                correctAnswer: "A"
-            },
-            {
-                 question: `29. Which statements explain the following reactions occurring in the upper atmosphere?
-                    <ul><li>Chlorofluorocarbon (CFC) compounds break down to produce chlorine radicals but usually not fluorine radicals.</li><li>A single chlorine radical breaks down many ozone, $O_3$, molecules.</li></ul>
-                    <table>
-                        <thead><tr><th>Option</th><th>Reason for Cl radical formation</th><th>Reason for ozone depletion cycle</th></tr></thead>
-                        <tbody>
-                            <tr><td>A</td><td>C–Cl bond is stronger than C–F bond</td><td>chain propagation steps produce more radicals</td></tr>
-                            <tr><td>B</td><td>C–F bond is stronger than C–Cl bond</td><td>chain termination steps cause chlorine radicals to reform chlorine molecules</td></tr>
-                            <tr><td>C</td><td>C–Cl bond is stronger than C–F bond</td><td>chain termination steps cause chlorine radicals to reform chlorine molecules</td></tr>
-                            <tr><td>D</td><td>C–F bond is stronger than C–Cl bond</td><td>chain propagation steps produce more radicals</td></tr>
-                        </tbody>
-                    </table>`,
-                options: { A: "A", B: "B", C: "C", D: "D" }, // Options refer to table rows
-                correctAnswer: "D", // C-F bond is stronger (higher bond enthalpy), so C-Cl breaks. Ozone depletion is catalytic cycle (propagation).
+                options: { A: "A", B: "B", C: "C", D: "D" },
+                correctAnswer: "B", // 6 mol CO needs 6/3=2 mol Fe2O3. Have 5 mol Fe2O3 -> Fe2O3 excess. CO limiting. Moles Fe2O3 remaining = 5 - 2 = 3 mol.
                 isTableQuestion: true
             },
             {
-                question: "30. Which species can act as an electrophile?",
-                options: { A: "$CH_4$", B: "$Cl_2$", C: "$Cl^-$", D: "$OH^-$" },
-                correctAnswer: "B" // Cl2 can be polarized or undergo heterolytic fission to form Cl+, an electrophile.
+                question: "34. Which contains the most atoms of oxygen?",
+                options: {
+                    A: "64 g of $O_2$",
+                    B: "64 g of $C_3H_5O_3$",
+                    C: "$1.2 \\times 10^{24}$ molecules of $O_2$",
+                    D: "$1.2 \\times 10^{24}$ molecules of $C_3H_5O_3$"
+                },
+                correctAnswer: "D" // A: 4mol O, B: ~2.16mol O, C: 4mol O, D: 6mol O
+            },
+            {
+                question: "35. What is the maximum number of electrons that can occupy the 4th main energy level in an atom?",
+                options: { A: "8", B: "14", C: "18", D: "32" },
+                correctAnswer: "D" // 2n^2 = 2*(4^2) = 32
+            },
+            {
+                question: "36. Which contains the same number of ions as the value of Avogadro's constant?",
+                options: {
+                    A: "1.0 mol $Na_2O$",
+                    B: "0.5 mol $MgCl_2$",
+                    C: "0.5 mol NaCl",
+                    D: "1.0 mol MgO"
+                },
+                correctAnswer: "C" // A: 3*NA, B: 1.5*NA, C: 1*NA, D: 2*NA
+            },
+            {
+                question: "38. Which of the following subatomic particles has the smallest mass?",
+                options: { A: "proton", B: "neutron", C: "electron", D: "nucleus" },
+                correctAnswer: "C"
+            },
+            {
+                question: "39. The number of moles in 500 g of water is approximately:",
+                options: { A: "28", B: "9000", C: "$1 \\times 10^{25}$", D: "$3 \\times 10^{26}$" },
+                correctAnswer: "A" // 500 / 18.02 = 27.7
+            },
+            {
+                 question: "41. How many molecules are present in 36.0 g of water?",
+                options: {
+                    A: "$2.00 \\times 10^{24}$",
+                    B: "$1.08 \\times 10^{24}$",
+                    C: "$1.20 \\times 10^{24}$",
+                    D: "$6.02 \\times 10^{23}$"
+                },
+                correctAnswer: "C" // Moles = 36/18.02 = ~2 mol. Molecules = 2 * NA = 1.20e24
+            },
+            {
+                question: "43. Which equation represents the first ionization energy of chlorine?",
+                options: {
+                    A: "$Cl^{-}(g) \\rightarrow Cl(g)+e^{-}$",
+                    B: "$Cl(g) \\rightarrow Cl^{+}(g)+e^{-}$",
+                    C: "$Cl(g)+e^{-} \\rightarrow Cl^{-}(g)$",
+                    D: "$Cl^{+}(g) \\rightarrow Cl(g)+e^{-}$"
+                },
+                correctAnswer: "B" // Removal of electron from gaseous atom
+            },
+            {
+                question: "46. Which of the following statements is an assumption of the ideal gas model?",
+                options: {
+                    A: "Gas particles are in constant random motion with negligible volume compared to the volume of the container.",
+                    B: "Gas particles have significant intermolecular forces that affect their behavior.",
+                    C: "The temperature of a gas is inversely proportional to the average kinetic energy of the particles.",
+                    D: "Ideal gas particles experience significant attractions that increase with distance between them."
+                },
+                correctAnswer: "A"
+            },
+            {
+                 question: `50. What are the absolute and percentage uncertainties for the change in mass? <br> Initial mass: $22.35 \\pm 0.05 \\, g$ <br> Final mass: $42.35 \\pm 0.05 \\, g$
+                    <table>
+                        <thead><tr><th>Answer</th><th>Absolute uncertainty/g</th><th>Percentage uncertainty</th></tr></thead>
+                        <tbody>
+                            <tr><td>A</td><td>±0.05</td><td>0.1%</td></tr>
+                            <tr><td>B</td><td>±0.10</td><td>0.5%</td></tr>
+                            <tr><td>C</td><td>±0.05</td><td>0.5%</td></tr>
+                            <tr><td>D</td><td>±0.10</td><td>0.1%</td></tr>
+                        </tbody>
+                    </table>`,
+                options: { A: "A", B: "B", C: "C", D: "D" },
+                correctAnswer: "B", // Change = 20.00 g. Abs uncert = 0.05+0.05 = 0.10 g. % uncert = (0.10/20.00)*100 = 0.5%
+                isTableQuestion: true
             }
         ];
 
@@ -396,117 +389,117 @@
         const percentageElement = document.getElementById('percentage');
         const correctionsList = document.getElementById('corrections-list');
 
-        // Function to shuffle options (optional, but good practice)
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        }
-
-
-        // Function to load questions
+        // Function to load questions into the form
         function loadQuiz() {
             let quizHTML = '';
             quizData.forEach((q, index) => {
+                // Start question block
                 quizHTML += `<div class="question-block">`;
-                // Add question number and text
-                quizHTML += `<p class="mb-4 text-gray-700 font-medium">${q.question}</p>`;
+                // Add question text with proper styling class
+                quizHTML += `<p class="question-text">${q.question}</p>`;
 
-                // Store options to shuffle if needed
+                // Prepare options HTML
                 let optionsHTML = '';
                 const optionKeys = Object.keys(q.options);
-                // shuffleArray(optionKeys); // Optional: Shuffle options
 
+                // Loop through options for the current question
                 optionKeys.forEach(key => {
-                    // For table questions, the option text is just the letter
+                    // Determine the text to display for the option
                     const optionText = q.isTableQuestion ? key : q.options[key];
-                     // Add radio button and label for each option
+                     // Create the label and radio button for the option
                     optionsHTML += `
-                        <label class="block">
+                        <label class="option-label block">
                             <input type="radio" name="question${index}" value="${key}" required>
                             <span>${key}. ${optionText}</span>
                         </label>`;
                 });
+                // Add options HTML to the question block
                 quizHTML += optionsHTML;
-                quizHTML += `</div>`; // Close question-block
+                // Close question block
+                quizHTML += `</div>`;
             });
-            // Insert the generated HTML into the form, before the submit button
+            // Insert the generated HTML into the form, right after the h1 tag
             quizForm.insertAdjacentHTML('afterbegin', quizHTML);
 
             // Re-render MathJax for the newly added content
              if (window.MathJax) {
-                MathJax.typesetPromise();
+                MathJax.typesetPromise().catch((err) => console.log('MathJax typesetting error:', err));
              }
         }
 
-        // Function to calculate results
+        // Function to calculate results based on user answers
         function calculateResults() {
             let score = 0;
             const incorrectAnswers = [];
             const formData = new FormData(quizForm);
 
+            // Iterate through each question to check the answer
             quizData.forEach((q, index) => {
                 const userAnswer = formData.get(`question${index}`);
+                // Check if the user's answer matches the correct answer
                 if (userAnswer === q.correctAnswer) {
                     score++;
                 } else {
-                     // Store details of incorrect answers
+                     // If incorrect, store details for the corrections section
+                     const userOptionText = q.isTableQuestion ? userAnswer : (q.options[userAnswer] || 'No answer');
+                     const correctOptionText = q.isTableQuestion ? q.correctAnswer : q.options[q.correctAnswer];
                     incorrectAnswers.push({
                         question: q.question,
-                        userAnswer: userAnswer ? `${userAnswer}. ${q.isTableQuestion ? userAnswer : q.options[userAnswer]}` : "No answer", // Handle table questions
-                        correctAnswer: `${q.correctAnswer}. ${q.isTableQuestion ? q.correctAnswer : q.options[q.correctAnswer]}` // Handle table questions
+                        userAnswer: userAnswer ? `${userAnswer}. ${userOptionText}` : "No answer",
+                        correctAnswer: `${q.correctAnswer}. ${correctOptionText}`
                     });
                 }
             });
 
+            // Return the calculated score and list of incorrect answers
             return { score, incorrectAnswers };
         }
 
-        // Function to display results
+        // Function to display the results and corrections
         function displayResults(score, incorrectAnswers) {
             const totalQuestions = quizData.length;
             const percentage = ((score / totalQuestions) * 100).toFixed(1);
 
-            // Display score and percentage
+            // Update the score and percentage elements
             scoreElement.textContent = `Your Score: ${score} out of ${totalQuestions}`;
             percentageElement.textContent = `Percentage: ${percentage}%`;
 
-            // Display corrections
+            // Build the HTML for the corrections list
             let correctionsHTML = '';
             if (incorrectAnswers.length > 0) {
                 incorrectAnswers.forEach(item => {
                     correctionsHTML += `
                         <li>
-                            <p class="mb-2 text-gray-700">${item.question}</p>
+                            <p class="question-text mb-2 text-gray-700">${item.question}</p>
                             <p class="text-sm text-red-600">Your answer: ${item.userAnswer}</p>
                             <p class="text-sm text-green-700"><strong>Correct answer: ${item.correctAnswer}</strong></p>
                         </li>`;
                 });
             } else {
-                correctionsHTML = '<p class="text-green-600">Congratulations! You answered all questions correctly.</p>';
+                // Message if all answers are correct
+                correctionsHTML = '<p class="text-green-600 font-medium">Congratulations! You answered all questions correctly.</p>';
             }
+            // Update the corrections list element
             correctionsList.innerHTML = correctionsHTML;
 
-             // Hide quiz, show results
+             // Hide the quiz form and show the results container
             quizContainer.classList.add('hidden');
             resultsContainer.classList.remove('hidden');
 
-            // Re-render MathJax for the results/corrections section
+            // Re-render MathJax for the results/corrections section if needed
             if (window.MathJax) {
-                 MathJax.typesetPromise();
+                 MathJax.typesetPromise().catch((err) => console.log('MathJax typesetting error:', err));
             }
         }
 
-        // Event listener for form submission
+        // Add event listener for the form submission
         quizForm.addEventListener('submit', (event) => {
-            event.preventDefault(); // Prevent default form submission
-            const { score, incorrectAnswers } = calculateResults();
-            displayResults(score, incorrectAnswers);
+            event.preventDefault(); // Prevent the default form submission behavior
+            const { score, incorrectAnswers } = calculateResults(); // Calculate results
+            displayResults(score, incorrectAnswers); // Display the results
         });
 
-        // Load the quiz when the page loads
+        // Load the quiz questions when the script runs
         loadQuiz();
 
     </script>
